@@ -69,6 +69,14 @@ object LessonUtil {
         }
     }
 
+    fun isAllowedToSpeak(name: String): Boolean {
+        return when (name) {
+            LETTERS.title -> true
+            else -> false
+        }
+    }
+
+
     // Helper function to read text from asset
     private fun readTextFromAsset(context: Context, assetPath: String): String {
         return try {

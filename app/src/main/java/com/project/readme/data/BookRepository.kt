@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import com.google.gson.annotations.SerializedName
 import com.project.readme.common.DataStorageHelper
+import com.project.readme.data.entity.Favorites
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,12 +14,13 @@ interface BookRepository {
     val user: StateFlow<UserProfile?>
     suspend fun updateUserProfile(name: String, age:Int, grade: Int, @DrawableRes profilePic: Int)
     suspend fun getUserProfile(): UserProfile?
-    suspend fun addToFavorites():Long
-    suspend fun removeToFavorites()
+    suspend fun addToFavorites(title: String):Long
+    suspend fun removeToFavorites(title: String)
     fun getFavorites(): Flow<List<Any>>
+    fun getFavoriteTitles(): Flow<List<String>>
 }
 
-class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper): BookRepository {
+class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, private val database: AppDatabase): BookRepository {
     override val user = MutableStateFlow<UserProfile?>(null)
 
     override suspend fun updateUserProfile(name: String, age: Int, grade: Int, @DrawableRes profilePic: Int) {
@@ -42,17 +44,17 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper): Book
         return UserProfile(userName,age, grade, profile)
     }
 
-    override suspend fun addToFavorites(): Long {
-        TODO("Not yet implemented")
+    override suspend fun addToFavorites(title: String): Long {
+        return database.favoriteDao().insert(Favorites(title = title))
     }
 
-    override suspend fun removeToFavorites() {
-        TODO("Not yet implemented")
+    override suspend fun removeToFavorites(title: String) {
+        return database.favoriteDao().deleteByTitle(title)
     }
 
-    override fun getFavorites(): Flow<List<Any>> {
-        TODO("Not yet implemented")
-    }
+    override fun getFavoriteTitles(): Flow<List<String>> = database.favoriteDao().allIds()
+
+    override fun getFavorites(): Flow<List<Favorites>> = database.favoriteDao().all()
 
 }
 

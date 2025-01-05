@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -45,11 +46,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -60,6 +65,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,6 +108,7 @@ class BookAppActivity : ComponentActivity() {
         setContent {
             val books by viewModel.lesson.collectAsState()
             val profile by viewModel.profile.collectAsState()
+            val favorites by viewModel.favorites.collectAsState()
             val navController = rememberNavController()
             ReadMeTheme {
                     // The NavHost occupies the remaining space above the bottom navigation bar
@@ -113,14 +120,16 @@ class BookAppActivity : ComponentActivity() {
                             modifier = Modifier.padding(paddingValues)
                         ) {
                             composable("home") {
-
                                 if(profile is Resource.Success) {
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen)
+                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::onSearch )
                                 }
-
                             }
                             composable("favorites") {
-                                FavoritesScreen()
+                                if (favorites.isNotEmpty()) {
+                                    FavoritesBooks(favorites, ::navigateToMainScreen)
+                                } else {
+                                    FavoritesScreen()
+                                }
                             }
                             composable("profile") {
                                 ProfileScreen(::updateProfile, profile.data)
@@ -133,6 +142,11 @@ class BookAppActivity : ComponentActivity() {
                 }
             }
         }
+
+    }
+
+    private fun onSearch(term: String) {
+        viewModel.search(term, this)
     }
 
     private fun navigateToMainScreen(bookTitle: String) {
@@ -222,7 +236,7 @@ fun FavoritesScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("Favorites Screen")
+        Text("No Favorites Books Found", style = MaterialTheme.typography.titleMedium)
     }
 }
 
@@ -242,7 +256,8 @@ fun ProfileScreen(kFunction4: (String, Int, Int, Int) -> Unit, profile: UserProf
 fun MediumTopAppBarExample(
     books: List<Book>,
     user: UserProfile?,
-    onItemClicked: (bookTitle: String) -> Unit
+    onItemClicked: (bookTitle: String) -> Unit,
+    onSearch: (String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -349,8 +364,12 @@ fun MediumTopAppBarExample(
                         // Search Bar
                         stickyHeader {
                             Column(modifier = Modifier.background(color = Color.White)) {
+                                var searchText by remember { mutableStateOf("") }
                                 Spacer(modifier = Modifier.height(if (isCollapsed) 0.dp else 20.dp))
-                                SearchBar()
+                                SearchBar(searchText) {
+                                    searchText = it
+                                    onSearch.invoke(it)
+                                }
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
@@ -370,8 +389,89 @@ fun MediumTopAppBarExample(
     }
 }
 
+
+@ExperimentalMaterial3Api
 @Composable
-fun SearchBar() {
+fun FavoritesBooks(
+    books: List<String>,
+    onItemClicked: (bookTitle: String) -> Unit,
+) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    // Detect scroll state to conditionally apply rounded corners
+    val scrollState = scrollBehavior.state
+    // Remember the state of the LazyColumn
+    val listState = rememberLazyListState()
+    // Box to layer the image background and content
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        // Scaffold for content with top bar
+        Scaffold(
+            modifier = Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White, // Make the top bar transparent
+                        scrolledContainerColor = Color.White,
+                        titleContentColor = Color(android.graphics.Color.parseColor("#66cbad"))
+                    ),
+                    title = {
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            Spacer(Modifier.width(8.dp))
+
+                            Text(
+                                "Favorite Books",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = Color(android.graphics.Color.parseColor("#66cbad"))
+                            )
+                        }
+
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            },
+            containerColor = Color.White,
+        ) { innerPadding ->
+
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        // Example content (popular books, etc.)
+                        item {
+                            FavoritesBooksItems(books, onItemClicked)
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(100.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchBar(searchText: String, onSearch: (String) -> Unit,) {
+
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -388,14 +488,43 @@ fun SearchBar() {
         ) {
             Icon(Icons.Default.Search, contentDescription = "Search Icon")
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Search book",
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
-                modifier = Modifier.weight(1f)
-            )
+
+
+                BasicTextField(
+                    value = searchText,
+                    onValueChange = onSearch,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.DarkGray),
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (searchText.isBlank()) {
+                        Text(
+                            text = "Search book",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Text(
+                            text = searchText,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.DarkGray),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+            // If you'd prefer a TextField with a border
+            /*TextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                singleLine = true,
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent)
+            )*/
         }
     }
 }
+
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -405,8 +534,8 @@ fun ListBooks(books: List<Book>, onItemClicked: (bookTitle: String) -> Unit) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center, // Center items horizontally
-        verticalArrangement = Arrangement.spacedBy(16.dp) // Space between rows
+        horizontalArrangement = Arrangement.Absolute.Center, // Align items to the start of the row
+        verticalArrangement = Arrangement.spacedBy(16.dp), // Space between rows
     ) {
         books.forEach { coverResId ->
             Box(
@@ -431,5 +560,45 @@ fun ListBooks(books: List<Book>, onItemClicked: (bookTitle: String) -> Unit) {
         }
     }
 }
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun FavoritesBooksItems(books: List<String>, onItemClicked: (bookTitle: String) -> Unit) {
+    val view = LocalView.current
+
+    val newList = books.toMutableList()
+    if ((newList.size % 2) != 0) {
+        newList.add("++")
+    }
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Absolute.Center, // Align items to the start of the row
+        verticalArrangement = Arrangement.spacedBy(16.dp), // Space between rows
+    ) {
+        newList.forEach { title ->
+            Box(
+                modifier = Modifier
+                    .padding(8.dp) // Inner padding for spacing
+                    .fillMaxWidth(0.45f) // Each item takes up 45% of the parent's width
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable {
+                        view.playSoundEffect(SoundEffectConstants.CLICK)
+                        onItemClicked(title)
+                    }
+            ) {
+                LessonUtil.getCover(title)?.let {
+                    Image(
+                        painter = painterResource(id = it),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillWidth, // Crop to fill the space while maintaining aspect ratio
+                        modifier = Modifier.fillMaxSize() // Fill the container size
+                    )
+                }
+            }
+        }
+    }
+}
+
 
 

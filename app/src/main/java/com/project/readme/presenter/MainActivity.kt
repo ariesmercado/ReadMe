@@ -11,11 +11,13 @@ import android.speech.tts.TextToSpeech.OnInitListener
 import android.view.SoundEffectConstants
 import android.view.View
 import android.view.WindowInsetsController
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -31,10 +33,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -64,6 +70,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.project.readme.R
 import com.project.readme.data.Book
 import com.project.readme.data.Page
+import com.project.readme.data.genarator.LessonUtil
 import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -124,9 +131,10 @@ class MainActivity : FragmentActivity(), EventHandler {
         setContent {
             val selectedLesson by viewModel.selectedBook.collectAsState()
             val isSuccessState by viewModel.sttResult.collectAsState()
+            val favorites by viewModel.favorites.collectAsState()
 
             ReadMeTheme {
-                BookApp(selectedLesson, this@MainActivity)
+                BookApp(selectedLesson, this@MainActivity, favorites)
 
                 isSuccessState?.let {
                     ResultDialog(
@@ -163,6 +171,10 @@ class MainActivity : FragmentActivity(), EventHandler {
 
     }
 
+    override fun toggleFavorite(title: String, isFavorite: Boolean) {
+        viewModel.toggleFavorite(title, isFavorite)
+    }
+
     // Function to start speech recognition
     override fun startListening(result: Boolean) {
         viewModel.updateSttResult(result)
@@ -178,22 +190,30 @@ class MainActivity : FragmentActivity(), EventHandler {
 interface EventHandler {
     fun speak(text: String)
     fun startListening(result: Boolean)
+    fun toggleFavorite(title: String, isFavorite: Boolean)
 }
 
 @Composable
 fun BookApp(
     selectedBook: Book?,
-    eventHandler: EventHandler
+    eventHandler: EventHandler,
+    favorites: List<String>
 ) {
     val books = selectedBook?.pages ?: emptyList()
     var currentBookIndex by remember { mutableIntStateOf(0) }
 
-    BookPager(pages = books, eventHandler) { index -> currentBookIndex = index }
+    BookPager(pages = books, eventHandler, favorites, selectedBook?.name.orEmpty()) { index -> currentBookIndex = index }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BookPager(pages: List<Page>, eventHandler: EventHandler, onBookChange: (Int) -> Unit) {
+fun BookPager(
+    pages: List<Page>,
+    eventHandler: EventHandler,
+    favorites: List<String>,
+    title: String,
+    onBookChange: (Int) -> Unit
+) {
     val view = LocalView.current
     val pagerState = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
@@ -206,7 +226,7 @@ fun BookPager(pages: List<Page>, eventHandler: EventHandler, onBookChange: (Int)
                     result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 if (searchString != null) {
                     val text = searchString[0]
-                    val textResult = text.trim().lowercase(Locale.getDefault()) == selectedPage.text.split("-")[0].trim().lowercase(Locale.getDefault())
+                    val textResult = text.trim().lowercase(Locale.getDefault()).contains(selectedPage.text.split("-")[0].trim().lowercase(Locale.getDefault()))
 
                     Timber.d("textResult -> ${text.trim().lowercase(Locale.getDefault())}")
                     Timber.d("textResult -> ${selectedPage.text.split("-")[0].trim().lowercase(Locale.getDefault())}")
@@ -228,6 +248,17 @@ fun BookPager(pages: List<Page>, eventHandler: EventHandler, onBookChange: (Int)
                 .fillMaxSize() // Make the image fill the entire background
                 .alpha(.2f)
         )
+
+        val isFavorite = favorites.any { it.contains(title) }
+        IconButton(onClick = { eventHandler.toggleFavorite(title, isFavorite) }, modifier = Modifier.padding(16.dp).align(Alignment.TopEnd)) {
+
+            Icon(
+                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = if (isFavorite) "remove" else "add",
+                tint = if (isFavorite) Color.Red else Color.DarkGray,
+                modifier = Modifier.size(48.dp)
+            )
+        }
 
         // Foreground content
         Column(
@@ -369,7 +400,7 @@ fun BookPager(pages: List<Page>, eventHandler: EventHandler, onBookChange: (Int)
                     )
                     putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text")
                 }
-
+                val context = LocalContext.current
                 Card(
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFF7C700)), // Microphone background color
@@ -377,7 +408,11 @@ fun BookPager(pages: List<Page>, eventHandler: EventHandler, onBookChange: (Int)
                         .padding(start = 4.dp)
                         .clickable {
                             view.playSoundEffect(SoundEffectConstants.CLICK)
-                            recordIntent.launch(intent)
+                            if (LessonUtil.isAllowedToSpeak(title)) {
+                                recordIntent.launch(intent)
+                            } else {
+                                Toast.makeText(context,"Speak features is not available", Toast.LENGTH_SHORT).show()
+                            }
                         }
 
                 ) {
@@ -389,7 +424,12 @@ fun BookPager(pages: List<Page>, eventHandler: EventHandler, onBookChange: (Int)
                             icon = painterResource(id = R.drawable.microphone),
                             onClick = {
                                 view.playSoundEffect(SoundEffectConstants.CLICK)
-                                recordIntent.launch(intent)
+
+                                if (LessonUtil.isAllowedToSpeak(title)) {
+                                    recordIntent.launch(intent)
+                                } else {
+                                    Toast.makeText(context,"Speak features is not available", Toast.LENGTH_SHORT).show()
+                                }
                             },
                             modifier = Modifier.size(24.dp)
                         )
