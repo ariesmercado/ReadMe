@@ -226,7 +226,8 @@ fun BookPager(
                     result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 if (searchString != null) {
                     val text = searchString[0]
-                    val textResult = text.trim().lowercase(Locale.getDefault()).contains(selectedPage.text.split("-")[0].trim().lowercase(Locale.getDefault()))
+                    val textResult = text.trim().lowercase(Locale.getDefault()).startsWith(selectedPage.text.split("-")[0].trim().lowercase(Locale.getDefault())) &&
+                            text.trim().lowercase(Locale.getDefault()).contains(selectedPage.text.split("-")[1].trim().lowercase(Locale.getDefault()))
 
                     Timber.d("textResult -> ${text.trim().lowercase(Locale.getDefault())}")
                     Timber.d("textResult -> ${selectedPage.text.split("-")[0].trim().lowercase(Locale.getDefault())}")

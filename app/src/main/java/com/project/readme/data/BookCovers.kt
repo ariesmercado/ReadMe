@@ -10,4 +10,6 @@ enum class BookCovers(val id: Int, val title: String, @DrawableRes val cover: In
     LUCAS(id = 4, title = "LUCAS", cover = R.drawable.lucas),
     SIGHT_WORDS(id = 5, title = "SIGHT WORDS", cover = R.drawable.sight_words),
     THIRSTY_CROW(id = 6, title = "THIRSTY CROW", cover = R.drawable.trirsty_crow),
+    THE_ANT_AND_THE_DOVE(id = 7, title = "THE ANT AND THE DOVE", cover = R.drawable.the_ant_and_the_dove),
+    GOOSE(id = 8, title = "GOOSE", cover = R.drawable.goose),
 }

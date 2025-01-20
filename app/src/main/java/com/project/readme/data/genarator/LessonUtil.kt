@@ -53,7 +53,6 @@ object LessonUtil {
                 pages = it.pages.sortedBy { page -> regex.find(page.name)?.value?.toIntOrNull() }
             )
         }
-
     }
 
     fun getCover(name: String): Int? {
@@ -65,6 +64,8 @@ object LessonUtil {
             LUCAS.title -> LUCAS.cover
             SIGHT_WORDS.title -> SIGHT_WORDS.cover
             THIRSTY_CROW.title -> THIRSTY_CROW.cover
+            THE_ANT_AND_THE_DOVE.title -> THE_ANT_AND_THE_DOVE.cover
+            GOOSE.title -> GOOSE.cover
             else -> null
         }
     }
