@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
+import com.project.readme.R
 import com.project.readme.data.Page
 import com.project.readme.data.Book
 import com.project.readme.data.BookCovers.*
@@ -66,6 +67,16 @@ object LessonUtil {
             THIRSTY_CROW.title -> THIRSTY_CROW.cover
             THE_ANT_AND_THE_DOVE.title -> THE_ANT_AND_THE_DOVE.cover
             GOOSE.title -> GOOSE.cover
+            DENTIST.title -> DENTIST.cover
+            SEEDS_ON_THE_MOVE.title -> SEEDS_ON_THE_MOVE.cover
+            PIZZA_FOR_POLLY.title -> PIZZA_FOR_POLLY.cover
+            THE_KITE.title -> THE_KITE.cover
+            HOME_SCHOOL.title -> HOME_SCHOOL.cover
+            A_DAY_AT_THE_BEACH.title -> A_DAY_AT_THE_BEACH.cover
+            THE_COWS_AND_LIONS.title -> THE_COWS_AND_LIONS.cover
+            THE_ANT_AND_GRASSHOPPER.title -> THE_ANT_AND_GRASSHOPPER.cover
+            THE_DOG_AND_THE_SPARROW.title -> THE_DOG_AND_THE_SPARROW.cover
+            THE_CLEAN_PARK.title -> THE_CLEAN_PARK.cover
             else -> null
         }
     }
