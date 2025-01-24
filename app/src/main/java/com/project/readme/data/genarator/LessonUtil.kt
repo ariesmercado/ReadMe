@@ -12,7 +12,7 @@ import timber.log.Timber
 
 object LessonUtil {
 
-    suspend fun loadLessonsFromAssets(context: Context): List<Book> {
+    fun loadLessonsFromAssets(context: Context): List<Book> {
         val books = mutableListOf<Book>()
 
         // Access the lessons directory in the assets folder
@@ -47,7 +47,8 @@ object LessonUtil {
     }
 
     private fun List<Book>.arrangePages(): List<Book> {
-        return map {
+        val books = this.filterNot { it.name in unavailableBooks() }
+        return books.map {
             val regex = "\\d+".toRegex()
             Book(
                 name = it.name,
@@ -56,8 +57,14 @@ object LessonUtil {
         }
     }
 
+    fun unavailableBooks(): List<String> {
+        return listOf(
+            THE_DOG_AND_THE_SPARROW.title,
+            SEEDS_ON_THE_MOVE.title
+        )
+    }
+
     fun getCover(name: String): Int? {
-        Timber.d("getCover(name: String) -> $name")
         return when (name) {
             LETTERS.title -> LETTERS.cover
             BEN_GOES_FISHING.title -> BEN_GOES_FISHING.cover
@@ -77,6 +84,8 @@ object LessonUtil {
             THE_ANT_AND_GRASSHOPPER.title -> THE_ANT_AND_GRASSHOPPER.cover
             THE_DOG_AND_THE_SPARROW.title -> THE_DOG_AND_THE_SPARROW.cover
             THE_CLEAN_PARK.title -> THE_CLEAN_PARK.cover
+            A_MERCHANDISE.title -> A_MERCHANDISE.cover
+            A_KING_SHEPHERD.title -> A_KING_SHEPHERD.cover
             else -> null
         }
     }

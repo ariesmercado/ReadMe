@@ -401,6 +401,7 @@ fun BookPager(
                     )
                     putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text")
                 }
+
                 val context = LocalContext.current
                 Card(
                     shape = RoundedCornerShape(8.dp),

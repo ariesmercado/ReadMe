@@ -11,9 +11,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,8 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.project.readme.R
@@ -86,33 +96,59 @@ class SplashScreenActivity : ComponentActivity() {
             modifier = Modifier.fillMaxSize(),
             color = Color.White
         ) {
-            // Vertically centered content
-            Box (
-                modifier = Modifier
-                    .fillMaxSize()
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.readme_bg), // Replace with your background image resource
                     contentDescription = null,
                     contentScale = ContentScale.FillHeight, // Adjusts how the image fits the background
-                    modifier = Modifier
-                        .fillMaxSize() // Make the image fill the entire background
+                    modifier = Modifier.fillMaxSize() // Make the image fill the entire background
                 )
 
                 Image(
-                    painter = painterResource(id = R.drawable.readme_brand_logo), // Replace with your background image resource
+                    painter = painterResource(id = R.drawable.readme_brand_logo), // Replace with your brand logo resource
                     contentDescription = null,
                     contentScale = ContentScale.Inside, // Adjusts how the image fits the background
-                    modifier = Modifier.size(300.dp).align(Alignment.Center)
+                    modifier = Modifier
+                        .size(300.dp)
+                        .align(Alignment.Center)
                 )
 
-
+                // Powered by text with "PRJ" styled as exponent
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        buildAnnotatedString {
+                            append("Powered by The Queens ")
+                            withStyle(
+                                style = SpanStyle(
+                                    fontSize = 8.sp, // Smaller size for the exponent effect
+                                    baselineShift = BaselineShift.Superscript, // Lift the text
+                                    fontWeight = FontWeight.Bold // Optional: make it bold for emphasis
+                                )
+                            ) {
+                                append("PRJ")
+                            }
+                        },
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+                    )
+                    Text(
+                        text = "All rights reserved.",
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+                    )
+                }
             }
         }
 
         onTimeout()
-
     }
+
+
 
     @Preview(showBackground = true)
     @Composable

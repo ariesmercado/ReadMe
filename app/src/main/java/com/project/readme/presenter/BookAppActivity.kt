@@ -27,19 +27,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +73,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -131,6 +139,10 @@ class BookAppActivity : ComponentActivity() {
                                     FavoritesScreen()
                                 }
                             }
+                            composable("about") {
+                                AboutPage()
+                            }
+
                             composable("profile") {
                                 ProfileScreen(::updateProfile, profile.data)
                             }
@@ -166,6 +178,7 @@ fun CustomBottomNavigationBar(navController: NavController, wic: WindowInsetsCon
     val items = listOf(
         BottomNavItem("Home", Icons.Default.Home, "home"),
         BottomNavItem("Favorites", Icons.Default.Favorite, "favorites"),
+        BottomNavItem("About", Icons.Default.Info, "about"),
         BottomNavItem("Profile", Icons.Default.Person, "profile")
     )
 
@@ -599,6 +612,162 @@ fun FavoritesBooksItems(books: List<String>, onItemClicked: (bookTitle: String) 
         }
     }
 }
+
+@Composable
+fun AboutPage() {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(start = 16.dp, top=60.dp, bottom = 200.dp, end = 16.dp)
+    ) {
+        // Header Section
+        Text(
+            text = "About Us",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+
+        // Subheader with Introduction
+        Text(
+            text = "Empowering young minds through improved reading comprehension.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Decorative Divider
+        Divider(
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            thickness = 2.dp,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+
+        // Project Description
+        Text(
+            text = """
+                We are a dedicated team of future educators from Mabini Colleges, Inc., committed to supporting Grade 2 learners in developing essential reading skills. Our application combines interactive and engaging learning experiences to foster better comprehension and instill a love for reading in young minds.
+            """.trimIndent(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Team Members Section
+        Text(
+            text = "Meet the Team",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        TeamMembersCard()
+
+        // Department & Course Section
+        SectionWithIcon(
+            icon = Icons.Default.Place,
+            title = "Department",
+            content = "College of Education"
+        )
+        SectionWithIcon(
+            icon = Icons.Default.AccountBox,
+            title = "Course",
+            content = "Bachelor of Elementary Education"
+        )
+
+        // School Information
+        SectionWithIcon(
+            icon = Icons.Default.Place,
+            title = "School",
+            content = "Mabini Colleges, Inc."
+        )
+
+        // Mission Statement
+        Text(
+            text = "Our Mission",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+        Text(
+            text = "To inspire young learners to achieve their full potential by building a strong foundation in reading comprehension, paving the way for academic success and lifelong learning.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Closing Message
+        Text(
+            text = "Together, let’s create a brighter future, one reader at a time.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 16.dp),
+            fontStyle = FontStyle.Italic
+        )
+    }
+}
+
+@Composable
+fun TeamMembersCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Our Team Members",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = """
+                    • Pia A. Breguiles
+                    • Ronalyn Cemanes
+                    • Jonalyn Octa
+                    • Patricia Mae De Jesus
+                    • Jilyn Santiago
+                """.trimIndent(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+fun SectionWithIcon(icon: ImageVector, title: String, content: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+    }
+}
+
 
 
 
