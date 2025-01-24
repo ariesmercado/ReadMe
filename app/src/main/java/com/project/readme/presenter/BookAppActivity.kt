@@ -1,6 +1,9 @@
 package com.project.readme.presenter
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.view.SoundEffectConstants
@@ -66,25 +69,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.width
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.glance.layout.height
+import androidx.glance.layout.width
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.project.readme.R
 import com.project.readme.common.Resource
 import com.project.readme.data.Book
@@ -92,6 +110,9 @@ import com.project.readme.data.UserProfile
 import com.project.readme.data.genarator.LessonUtil
 import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import kotlin.text.toFloat
 
 
 @AndroidEntryPoint
@@ -482,7 +503,7 @@ fun FavoritesBooks(
 }
 
 @Composable
-fun SearchBar(searchText: String, onSearch: (String) -> Unit,) {
+fun SearchBar(searchText: String, onSearch: (String) -> Unit) {
 
 
     Box(
@@ -562,12 +583,7 @@ fun ListBooks(books: List<Book>, onItemClicked: (bookTitle: String) -> Unit) {
                     }
             ) {
                 LessonUtil.getCover(coverResId.name)?.let {
-                    Image(
-                        painter = painterResource(id = it),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillWidth, // Crop to fill the space while maintaining aspect ratio
-                        modifier = Modifier.fillMaxSize() // Fill the container size
-                    )
+                    CompressedAsyncImage(it)
                 }
             }
         }
@@ -601,12 +617,7 @@ fun FavoritesBooksItems(books: List<String>, onItemClicked: (bookTitle: String) 
                     }
             ) {
                 LessonUtil.getCover(title)?.let {
-                    Image(
-                        painter = painterResource(id = it),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillWidth, // Crop to fill the space while maintaining aspect ratio
-                        modifier = Modifier.fillMaxSize() // Fill the container size
-                    )
+                    CompressedAsyncImage(imageResId = it)
                 }
             }
         }
@@ -622,7 +633,7 @@ fun AboutPage() {
             .fillMaxSize()
             .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 16.dp, top=60.dp, bottom = 200.dp, end = 16.dp)
+            .padding(start = 16.dp, top = 60.dp, bottom = 200.dp, end = 16.dp)
     ) {
         // Header Section
         Text(
@@ -768,6 +779,37 @@ fun SectionWithIcon(icon: ImageVector, title: String, content: String) {
     }
 }
 
+fun compressImage(inputStream: InputStream, quality: Int): Bitmap? {
+    val originalBitmap = BitmapFactory.decodeStream(inputStream)
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    originalBitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream)
+    val byteArray = byteArrayOutputStream.toByteArray()
+    return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+}
 
+@Composable
+fun CompressedAsyncImage(
+    imageResId: Int,
+    quality: Int = 20, // Set quality to 20%
+    modifier: Modifier = Modifier.fillMaxSize()
+) {
+    val context = LocalContext.current
+    val inputStream = context.resources.openRawResource(imageResId)
 
+    // Compress the image to the desired quality
+    val compressedBitmap = compressImage(inputStream, quality)
 
+    compressedBitmap?.let {
+        // Convert the compressed Bitmap to a painter that can be used by AsyncImage
+        val imageRequest = ImageRequest.Builder(context)
+            .data(it)
+            .build()
+
+        AsyncImage(
+            model = imageRequest,
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier = modifier
+        )
+    }
+}
