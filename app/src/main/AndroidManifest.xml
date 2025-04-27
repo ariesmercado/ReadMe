@@ -59,6 +59,20 @@
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
+
+        <activity
+            android:name=".presenter.StoryAndQuiz"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/Theme.ReadMe" />
+
+        <activity
+            android:name=".presenter.ExamResult"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/Theme.ReadMe" />
     </application>
 
 </manifest>

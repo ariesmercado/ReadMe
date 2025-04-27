@@ -1,20 +1,17 @@
 package com.project.readme.presenter
 
-import android.os.Build
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,9 +30,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.project.readme.R
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,30 +41,34 @@ class ComprehensionCover: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val decorView = window.decorView
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // For Android 11 (API 30) and above
-            decorView.windowInsetsController?.let { controller ->
-                controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            // For Android 10 (API 29) and below
-            decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_IMMERSIVE
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-        }
+
+        val wic = WindowInsetsControllerCompat(window, decorView)
+        wic.isAppearanceLightStatusBars = true // true or false as desired.
+        // And then you can set any background color to the status bar.
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
 
         setContent {
-            CoverAndOption()
+            CoverAndOption(:: navigateToStoryAndQuizzes, ::navigateToResult)
         }
+    }
+
+    private fun navigateToStoryAndQuizzes() {
+        val intent = Intent(this, StoryAndQuiz::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToResult() {
+        val intent = Intent(this, ExamResult::class.java)
+        startActivity(intent)
     }
 
 }
 
 @Composable
-fun CoverAndOption() {
+fun CoverAndOption(onTake: () -> Unit, onResult: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -98,6 +99,46 @@ fun CoverAndOption() {
                 )
             }
 
+            Spacer(Modifier.height(20.dp))
+
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, Color.Black),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            ) {
+
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(16.dp),
+                ) {
+                    Text(
+                        text = "Instructions:",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = "1. Choose the word or sentence that fits in the blank.",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+
+                    Text(
+                        text = "2. Select the correct option from the choices provided.",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    Text(
+                        text = "3. Review your answers before submitting.",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+
             Spacer(Modifier.height(16.dp))
 
             Card(
@@ -105,6 +146,7 @@ fun CoverAndOption() {
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
                 modifier = Modifier
                     .clickable {
+                        onTake.invoke()
                     }
                     .fillMaxWidth(.8f)
             ) {
@@ -128,6 +170,7 @@ fun CoverAndOption() {
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF7C700)),
                 modifier = Modifier
                     .clickable {
+                        onResult.invoke()
                     }
                     .fillMaxWidth(.8f)
             ) {

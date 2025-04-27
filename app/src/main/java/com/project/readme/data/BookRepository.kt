@@ -18,6 +18,9 @@ interface BookRepository {
     suspend fun removeToFavorites(title: String)
     fun getFavorites(): Flow<List<Any>>
     fun getFavoriteTitles(): Flow<List<String>>
+
+    suspend fun updateScore(score: Int)
+    suspend fun getScore(): Int?
 }
 
 class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, private val database: AppDatabase): BookRepository {
@@ -33,6 +36,8 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
 
         user.emit(UserProfile(name,age,grade,profilePic))
     }
+
+
 
     override suspend fun getUserProfile(): UserProfile? {
         val userName = dataStorageHelper.getValue<String>("UserName") ?: return null
@@ -53,6 +58,16 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
     }
 
     override fun getFavoriteTitles(): Flow<List<String>> = database.favoriteDao().allIds()
+
+    override suspend fun updateScore(score: Int) {
+        dataStorageHelper.apply {
+            saveValue("Score", score)
+        }
+    }
+
+    override suspend fun getScore(): Int? {
+        return dataStorageHelper.getValue<Int?>("Score") ?: return null
+    }
 
     override fun getFavorites(): Flow<List<Favorites>> = database.favoriteDao().all()
 
