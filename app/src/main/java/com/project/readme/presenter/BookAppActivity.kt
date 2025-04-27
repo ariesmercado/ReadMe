@@ -1,10 +1,8 @@
 package com.project.readme.presenter
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Bundle
 import android.view.SoundEffectConstants
 import android.widget.Toast
@@ -30,7 +28,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -71,41 +68,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.width
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.glance.layout.height
-import androidx.glance.layout.width
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.project.readme.R
 import com.project.readme.common.Resource
@@ -116,7 +99,6 @@ import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import kotlin.text.toFloat
 
 
 @AndroidEntryPoint
@@ -154,7 +136,7 @@ class BookAppActivity : ComponentActivity() {
                         ) {
                             composable("home") {
                                 if(profile is Resource.Success) {
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::onSearch )
+                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::onSearch, ::navigateToCover)
                                 }
                             }
                             composable("favorites") {
@@ -189,6 +171,11 @@ class BookAppActivity : ComponentActivity() {
     private fun navigateToMainScreen(bookTitle: String) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("Title", bookTitle)
+        startActivity(intent)
+    }
+
+    private fun navigateToCover() {
+        val intent = Intent(this, ComprehensionCover::class.java)
         startActivity(intent)
     }
 
@@ -296,6 +283,7 @@ fun MediumTopAppBarExample(
     user: UserProfile?,
     onItemClicked: (bookTitle: String) -> Unit,
     onSearch: (String) -> Unit,
+    onComprehensionCover: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -415,7 +403,7 @@ fun MediumTopAppBarExample(
                         // Example content (popular books, etc.)
 
                         item {
-                            AMod({},{})
+                            AMod( { onComprehensionCover.invoke()}, {})
                         }
 
                         item {

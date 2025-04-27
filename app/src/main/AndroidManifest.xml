@@ -52,6 +52,13 @@
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
+
+        <activity
+            android:name=".presenter.ComprehensionCover"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/Theme.ReadMe" />
     </application>
 
 </manifest>
