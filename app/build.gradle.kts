@@ -30,8 +30,8 @@ android {
         applicationId = "com.project.readme"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.6"
         testInstrumentationRunner = "android.template.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true

@@ -134,7 +134,12 @@ class MainActivity : FragmentActivity(), EventHandler {
             val favorites by viewModel.favorites.collectAsState()
 
             ReadMeTheme {
-                BookApp(selectedLesson, this@MainActivity, favorites)
+                if (selectedLesson != null) {
+                    BookApp(selectedLesson, this@MainActivity, favorites)
+                } else {
+                    CircularProgressBar()
+                }
+
 
                 isSuccessState?.let {
                     ResultDialog(

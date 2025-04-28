@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +34,10 @@ class BookAppViewModel @Inject constructor(
     val favorites: StateFlow<List<String>> = bookRepository.getFavoriteTitles()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val listCopy = MutableStateFlow<List<Book>>(emptyList())
+    private val listCopy = MutableStateFlow<List<Book>>(emptyList())
+
+    private val _page = MutableStateFlow(1)
+    val page = _page.asStateFlow()
 
     private var job: Job? = null
 
@@ -46,14 +50,33 @@ class BookAppViewModel @Inject constructor(
 
     fun loadLessons(context: Context) {
         viewModelScope.launch {
-            val newList = LessonUtil.loadLessonsFromAssets(context).toMutableList()
-            if ((newList.size % 2) != 0) {
-                newList.add(Book("++", emptyList()))
-            }
+            val newList = LessonUtil.loadLessonsFromAssets(context, 1).toMutableList()
             _lessons.value = newList
             listCopy.value = _lessons.value
+            Timber.d ("newList: ${listCopy.value}")
         }
     }
+
+    fun loadNextLessons(context: Context) {
+        val cp = page.value
+        Timber.d("loadNextLessons -> $cp")
+        if (cp > 2) return
+        viewModelScope.launch {
+            _page.value = cp + 1
+            val newList = LessonUtil.loadLessonsFromAssets(context, _page.value).toMutableList()
+            if ((newList.size % 2) != 0 && _page.value == 3) {
+                newList.add(Book("++", emptyList()))
+            }
+
+            val transList: MutableList<Book> = _lessons.value.toMutableList()
+            transList.addAll(newList)
+            _lessons.value = transList
+            listCopy.value = _lessons.value
+            Timber.d ("newList: ${listCopy.value}")
+        }
+    }
+
+
 
     fun search(term: String, context: Context) {
         job?.cancel()

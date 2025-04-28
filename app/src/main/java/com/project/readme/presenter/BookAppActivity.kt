@@ -48,6 +48,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -97,6 +98,7 @@ import com.project.readme.data.UserProfile
 import com.project.readme.data.genarator.LessonUtil
 import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
@@ -124,6 +126,7 @@ class BookAppActivity : ComponentActivity() {
             val books by viewModel.lesson.collectAsState()
             val profile by viewModel.profile.collectAsState()
             val favorites by viewModel.favorites.collectAsState()
+            val page by viewModel.page.collectAsState()
             val navController = rememberNavController()
             ReadMeTheme {
                     // The NavHost occupies the remaining space above the bottom navigation bar
@@ -136,7 +139,7 @@ class BookAppActivity : ComponentActivity() {
                         ) {
                             composable("home") {
                                 if(profile is Resource.Success) {
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::onSearch, ::navigateToCover)
+                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::onSearch, ::navigateToCover, ::onNextPage, page)
                                 }
                             }
                             composable("favorites") {
@@ -166,6 +169,10 @@ class BookAppActivity : ComponentActivity() {
 
     private fun onSearch(term: String) {
         viewModel.search(term, this)
+    }
+
+    private fun onNextPage() {
+        viewModel.loadNextLessons(this)
     }
 
     private fun navigateToMainScreen(bookTitle: String) {
@@ -284,6 +291,8 @@ fun MediumTopAppBarExample(
     onItemClicked: (bookTitle: String) -> Unit,
     onSearch: (String) -> Unit,
     onComprehensionCover: () -> Unit,
+    onNextPage: () -> Unit,
+    page: Int,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -421,11 +430,25 @@ fun MediumTopAppBarExample(
                         }
 
                         item {
-                            ListBooks(books, onItemClicked)
+                            Timber.d("ListBooks -> $books")
+                            if (books.isNotEmpty()) {
+                                ListBooks(books, onItemClicked)
+                            } else {
+                                CircularProgressBar()
+                            }
                         }
 
                         item {
-                            Spacer(modifier = Modifier.height(100.dp))
+                            if (books.size != 16 && books.isNotEmpty()) {
+                                Timber.d("CircularProgressBarPaging")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                CircularProgressBarPaging()
+                                Spacer(modifier = Modifier.height(100.dp))
+                                onNextPage.invoke()
+                            } else {
+                                Spacer(modifier = Modifier.height(100.dp))
+                            }
+
                         }
                     }
                 }
@@ -865,5 +888,36 @@ fun CompressedAsyncImage(
             contentScale = ContentScale.FillWidth,
             modifier = modifier
         )
+    }
+}
+
+@Composable
+fun CircularProgressBar() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Spacer(Modifier.height(150.dp))
+        CircularProgressIndicator(
+            color = Color(android.graphics.Color.parseColor("#66cbad")),
+            strokeWidth = 6.dp
+        )
+        Spacer(Modifier.height(150.dp))
+    }
+}
+
+@Composable
+fun CircularProgressBarPaging() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(Modifier.height(16.dp))
+        CircularProgressIndicator(
+            color = Color(android.graphics.Color.parseColor("#66cbad")),
+            strokeWidth = 6.dp
+        )
+
+        Spacer(Modifier.height(16.dp))
     }
 }

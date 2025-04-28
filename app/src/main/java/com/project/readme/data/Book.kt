@@ -5,7 +5,8 @@ import androidx.annotation.DrawableRes
 
 data class Book(
     val name: String,
-    val pages: List<Page>)
+    val pages: List<Page>
+)
 
 data class Page(
     val name: String,

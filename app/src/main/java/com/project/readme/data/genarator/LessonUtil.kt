@@ -8,43 +8,65 @@ import com.project.readme.R
 import com.project.readme.data.Page
 import com.project.readme.data.Book
 import com.project.readme.data.BookCovers.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 object LessonUtil {
 
-    fun loadLessonsFromAssets(context: Context): List<Book> {
-        val books = mutableListOf<Book>()
+    suspend fun loadLessonsFromAssets(context: Context, page: Int = 0): List<Book> {
+        return withContext(Dispatchers.IO) {
+            val books = mutableListOf<Book>()
 
-        // Access the lessons directory in the assets folder
-        val lessonDirectories = context.assets.list("Lessons") ?: return emptyList()
+            // Access the lessons directory in the assets folder
+            val lessonDirectories = context.assets.list("Lessons") ?: return@withContext emptyList()
 
-        // Loop through the directories (Letters, Books, etc.)
-        for (lessonDir in lessonDirectories) {
-            val pages = mutableListOf<Page>()
-            val lessonAssets = context.assets.list("Lessons/$lessonDir")
+            // Loop through the directories (Letters, Books, etc.)
+            for (lessonDir in lessonDirectories) {
+                val pages = mutableListOf<Page>()
+                val lessonAssets = context.assets.list("Lessons/$lessonDir")
 
-            // Loop through the assets in each lesson directory (Books, etc.)
-            lessonAssets?.forEach { asset ->
-                if (asset.endsWith(".txt")) {
-                    val bookName = asset.substringBefore(".txt")
+                // Loop through the assets in each lesson directory (Books, etc.)
+                lessonAssets?.forEach { asset ->
+                    if (asset.endsWith(".txt")) {
+                        val bookName = asset.substringBefore(".txt")
 
-                    // Read text from the .txt file
-                    val text = readTextFromAsset(context, "Lessons/$lessonDir/$asset")
+                        // Read text from the .txt file
+                        val text = readTextFromAsset(context, "Lessons/$lessonDir/$asset")
 
-                    // Load the corresponding image as Bitmap
-                    val image = loadImageFromAssets(context, "Lessons/$lessonDir/${bookName}.png")
+                        // Load the corresponding image as Bitmap
+                        val image = loadImageFromAssets(context, "Lessons/$lessonDir/${bookName}.png")
 
-                    // Create a Page object
-                    pages.add(Page(name = bookName, image = image, text = text))
+                        // Create a Page object
+                        pages.add(Page(name = bookName, image = image, text = text))
+                    }
                 }
+
+                // Create a Book object and add it to the list
+                books.add(Book(name = lessonDir, pages = pages))
             }
 
-            // Create a Book object and add it to the list
-            books.add(Book(name = lessonDir, pages = pages))
+            // Return the result based on the 'page' parameter
+            when (page) {
+                0 -> {
+                    books.arrangePages()
+                }
+                1 -> {
+                    books.arrangePages().take(6)
+                }
+                2 -> {
+                    books.arrangePages().subList(6, 12)
+                }
+                3 -> {
+                    books.arrangePages().subList(13, 17)
+                }
+                else -> {
+                    emptyList()
+                }
+            }
         }
-
-        return books.arrangePages()
     }
+
 
     private fun List<Book>.arrangePages(): List<Book> {
         val books = this.filterNot { it.name in unavailableBooks() }
