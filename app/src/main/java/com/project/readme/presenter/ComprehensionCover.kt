@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -22,6 +23,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,10 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.project.readme.R
+import com.project.readme.common.Resource
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ComprehensionCover: ComponentActivity() {
+    private val viewModel: CoverViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val decorView = window.decorView
@@ -51,7 +56,8 @@ class ComprehensionCover: ComponentActivity() {
 
 
         setContent {
-            CoverAndOption(:: navigateToStoryAndQuizzes, ::navigateToResult)
+            val score by viewModel.score.collectAsState()
+            CoverAndOption(:: navigateToStoryAndQuizzes, ::navigateToResult, score)
         }
     }
 
@@ -68,7 +74,7 @@ class ComprehensionCover: ComponentActivity() {
 }
 
 @Composable
-fun CoverAndOption(onTake: () -> Unit, onResult: () -> Unit) {
+fun CoverAndOption(onTake: () -> Unit, onResult: () -> Unit, score: Resource<Int?>) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -165,27 +171,30 @@ fun CoverAndOption(onTake: () -> Unit, onResult: () -> Unit) {
                 }
             }
             Spacer(Modifier.height(16.dp))
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF7C700)),
-                modifier = Modifier
-                    .clickable {
-                        onResult.invoke()
-                    }
-                    .fillMaxWidth(.8f)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+
+            if (score is Resource.Success && score.data != null) {
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7C700)),
+                    modifier = Modifier
+                        .clickable {
+                            onResult.invoke()
+                        }
+                        .fillMaxWidth(.8f)
                 ) {
-                    Text(
-                        text = "See Last Result",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "See Last Result",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }

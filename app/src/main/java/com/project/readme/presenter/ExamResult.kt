@@ -168,7 +168,7 @@ fun ResultContent(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "$score/69",
+                text = "${score ?: 0}/69",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
