@@ -8,16 +8,18 @@ import com.project.readme.data.BookRepository
 import com.project.readme.data.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExamResultViewModel @Inject constructor(
     private val bookRepository: BookRepository,
-    private val stateHandle: SavedStateHandle
-): ViewModel() {
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val _level = MutableStateFlow<String?>(savedStateHandle["level"])
+    val level = _level.asStateFlow()
 
     private val _score = MutableStateFlow<Resource<Int?>>(Resource.Loading())
     val score = _score.asStateFlow()
@@ -25,23 +27,24 @@ class ExamResultViewModel @Inject constructor(
     private val _profile = MutableStateFlow<Resource<UserProfile?>>(Resource.Loading())
     val profile = _profile.asStateFlow()
 
-    val level = stateHandle.get<String>("level")
-
     init {
-        getScore()
-        getUserProfile()
+        observeLevel()
     }
 
-    private fun getScore() {
+    private fun observeLevel() {
         viewModelScope.launch {
-            delay(0)
-            _score.value = Resource.Success(bookRepository.getScore(level!!))
+            level.filterNotNull().distinctUntilChanged().collect { levelValue ->
+                loadScore(levelValue)
+                loadUserProfile()
+            }
         }
     }
 
-    private fun getUserProfile() {
-        viewModelScope.launch {
-            _profile.value = Resource.Success(bookRepository.getUserProfile())
-        }
+    private suspend fun loadScore(level: String) {
+        _score.value = Resource.Success(bookRepository.getScore(level))
+    }
+
+    private suspend fun loadUserProfile() {
+        _profile.value = Resource.Success(bookRepository.getUserProfile())
     }
 }

@@ -63,9 +63,9 @@ class ExamResult : ComponentActivity() {
         setContent {
             val score by viewModel.score.collectAsState()
             val profile by viewModel.profile.collectAsState()
-            val level = viewModel.level
+            val level by viewModel.level.collectAsState()
 
-            if (score is Resource.Success && profile.data != null) {
+            if (score is Resource.Success && profile.data != null && level != null) {
                 ExamResultContent(score.data, profile.data, level)
             }
         }

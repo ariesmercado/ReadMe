@@ -599,7 +599,6 @@ fun FavoritesBooks(
 @Composable
 fun SearchBar(searchText: String, onSearch: (String) -> Unit) {
 
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
