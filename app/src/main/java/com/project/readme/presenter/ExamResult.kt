@@ -1,5 +1,6 @@
 package com.project.readme.presenter
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,24 +63,27 @@ class ExamResult : ComponentActivity() {
         setContent {
             val score by viewModel.score.collectAsState()
             val profile by viewModel.profile.collectAsState()
+            val level = viewModel.level
 
             if (score is Resource.Success && profile.data != null) {
-                ExamResultContent(score.data, profile.data)
+                ExamResultContent(score.data, profile.data, level)
             }
         }
     }
 }
 
 @Composable
-fun ExamResultContent(score: Int?, profile: UserProfile?) {
+fun ExamResultContent(score: Int?, profile: UserProfile?, level: String?) {
     val context = LocalContext.current
-    val percentage = ((score?.toDouble() ?: 0.0) / 69.0) * 100
+    val items = if (level == "easy") 21.0 else 24.0
+    val percentage = ((score?.toDouble() ?: 0.0) / items) * 100
     val isPassed = percentage >= 75
     val image = if (isPassed) R.drawable.fireworks else R.drawable.failed_exam
 
     var bitmapToSave by remember { mutableStateOf<Bitmap?>(null) }
-
     val viewRef = remember { mutableStateOf<View?>(null) }
+
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -91,7 +96,7 @@ fun ExamResultContent(score: Int?, profile: UserProfile?) {
                 ComposeView(ctx).apply {
                     setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                     setContent {
-                        ResultContent(score, profile, isPassed, image, percentage)
+                        ResultContent(score, profile, isPassed, image, percentage, level)
                     }
                 }
             },
@@ -107,6 +112,56 @@ fun ExamResultContent(score: Int?, profile: UserProfile?) {
                 .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (!isPassed) {
+                Button(
+                    onClick = {
+                        val intent = android.content.Intent(context, StoryAndQuiz::class.java).apply {
+                            putExtra("level", level)
+                        }
+                        context.startActivity(intent)
+                        if (context is Activity) {
+                            context.finish()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7C700)),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(0.8f),
+                    contentPadding = PaddingValues(16.dp),
+                ) {
+                    Text(
+                        text = "Retake exam again",
+                        style = MaterialTheme.typography.titleLarge.copy(color = Color.Gray),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // ✅ Dialog Trigger Button
+            Button(
+                onClick = {
+                    showDialog = true
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(android.graphics.Color.parseColor("#66cbad"))),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(0.8f),
+                contentPadding = PaddingValues(16.dp),
+            ) {
+                Text(
+                    text = "Take another Exam",
+                    style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // 📷 Download Button
             Button(
                 onClick = {
                     viewRef.value?.let { view ->
@@ -130,7 +185,47 @@ fun ExamResultContent(score: Int?, profile: UserProfile?) {
             }
         }
     }
+
+    // ✅ Take Exam Dialog
+    if (showDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text("Choose Exam Difficulty")
+            },
+            text = {
+                Column {
+                    listOf("easy", "medium", "hard").forEach { difficulty ->
+                        Button(
+                            onClick = {
+                                showDialog = false
+                                val intent = android.content.Intent(context, StoryAndQuiz::class.java).apply {
+                                    putExtra("level", difficulty)
+                                }
+                                context.startActivity(intent)
+                                if (context is Activity) {
+                                    context.finish()
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                        ) {
+                            Text(difficulty.replaceFirstChar { it.uppercase() }, color = Color.Black)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
+
 
 @Composable
 fun ResultContent(
@@ -138,9 +233,13 @@ fun ResultContent(
     profile: UserProfile?,
     isPassed: Boolean,
     image: Int,
-    percentage: Double
+    percentage: Double,
+    level: String?
 ) {
-    Box(Modifier.fillMaxSize().background(Color.White)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -151,7 +250,7 @@ fun ResultContent(
             Image(
                 painter = painterResource(id = image),
                 contentDescription = "Exam Result Image",
-                modifier = Modifier.size(300.dp),
+                modifier = Modifier.size(250.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -166,9 +265,10 @@ fun ResultContent(
             )
 
             Spacer(Modifier.height(16.dp))
+            val items = if (level == "easy") 21 else 24
 
             Text(
-                text = "${score ?: 0}/69",
+                text = "${score ?: 0}/$items",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -178,9 +278,9 @@ fun ResultContent(
             Spacer(Modifier.height(16.dp))
 
             val message = if (isPassed) {
-                "You passed the exam with ${"%.2f".format(percentage)}%!"
+                "You passed the exam in ${level} mode with ${"%.2f".format(percentage)}%!"
             } else {
-                "You failed the exam with ${"%.2f".format(percentage)}%. Don't give up — try again!"
+                "You failed the exam in ${level} mode with ${"%.2f".format(percentage)}%. Don't give up — try again!"
             }
 
             Text(

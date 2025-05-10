@@ -61,14 +61,25 @@ class ComprehensionCover: ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getScore()
+    }
+
     private fun navigateToStoryAndQuizzes() {
+        val level = viewModel.level
         val intent = Intent(this, StoryAndQuiz::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
+        finish()
     }
 
     private fun navigateToResult() {
+        val level = viewModel.level
         val intent = Intent(this, ExamResult::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
+        finish()
     }
 
 }

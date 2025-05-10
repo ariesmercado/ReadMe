@@ -181,8 +181,9 @@ class BookAppActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToCover() {
+    private fun navigateToCover(level: String) {
         val intent = Intent(this, ComprehensionCover::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
     }
 
@@ -290,7 +291,7 @@ fun MediumTopAppBarExample(
     user: UserProfile?,
     onItemClicked: (bookTitle: String) -> Unit,
     onSearch: (String) -> Unit,
-    onComprehensionCover: () -> Unit,
+    onComprehensionCover: (String) -> Unit,
     onNextPage: () -> Unit,
     page: Int,
 ) {
@@ -396,6 +397,8 @@ fun MediumTopAppBarExample(
                         state = listState,
                         modifier = Modifier.fillMaxSize()
                     ) {
+
+                        // Example content (popular books, etc.)
                         // Search Bar
                         stickyHeader {
                             Column(modifier = Modifier.background(color = Color.White)) {
@@ -409,10 +412,8 @@ fun MediumTopAppBarExample(
                             }
                         }
 
-                        // Example content (popular books, etc.)
-
                         item {
-                            AMod( { onComprehensionCover.invoke()}, {})
+                            AMod(onComprehensionCover, {})
                         }
 
                         item {
@@ -458,7 +459,7 @@ fun MediumTopAppBarExample(
 }
 
 @Composable
-fun AMod(onTakeTestClick: () -> Unit, onShareResultClick: () -> Unit) {
+fun AMod(onTakeTestClick: (String) -> Unit, onShareResultClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -470,33 +471,49 @@ fun AMod(onTakeTestClick: () -> Unit, onShareResultClick: () -> Unit) {
                 )
             )
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Boost Your Knowledge Today!",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = onTakeTestClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                ) {
-                    Text(text = "Take Comprehension Test", color = Color(0xFF007AFF))
+        Column (Modifier.fillMaxWidth().padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Boost Your Knowledge Today!",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
                 }
+                Image(
+                    painter = painterResource(id = R.drawable.take_exam),
+                    contentDescription = "Exam Image",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
             }
-            Image(
-                painter = painterResource(id = R.drawable.take_exam),
-                contentDescription = "Exam Image",
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick =  { onTakeTestClick.invoke("easy") },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Easy", color = Color(0xFF007AFF))
+            }
+            Button(
+                onClick = { onTakeTestClick.invoke("medium") },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Medium", color = Color(0xFF007AFF))
+            }
+            Button(
+                onClick = { onTakeTestClick.invoke("hard") },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Hard", color = Color(0xFF007AFF))
+            }
         }
     }
 }

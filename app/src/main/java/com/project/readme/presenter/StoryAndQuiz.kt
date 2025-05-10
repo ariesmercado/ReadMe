@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -49,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import com.project.readme.R
 import com.project.readme.data.Story
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class StoryAndQuiz: ComponentActivity() {
@@ -63,6 +63,7 @@ class StoryAndQuiz: ComponentActivity() {
             val currentQuiz by viewModel.currentQuiz.collectAsState()
             val answerStatus by viewModel.answerStatus.collectAsState()
             val answer by viewModel.answer.collectAsState()
+            val level = viewModel.level // use this level to change the rules
 
             StoryAndQuizContent(
                 currentStory,
@@ -72,7 +73,8 @@ class StoryAndQuiz: ComponentActivity() {
                 ::onNextQuestion,
                 ::onSubmit,
                 ::onChooseAnswer,
-                ::onSeeResult
+                ::onSeeResult,
+                level
             )
 
             var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
@@ -131,8 +133,8 @@ class StoryAndQuiz: ComponentActivity() {
         viewModel.onNextQuiz()
     }
 
-    fun onSubmit() {
-        viewModel.onSubmitAnswer()
+    fun onSubmit(answer: String?) {
+        viewModel.onSubmitAnswer(answer)
     }
 
     fun onChooseAnswer(number: Int) {
@@ -140,8 +142,11 @@ class StoryAndQuiz: ComponentActivity() {
     }
 
     fun onSeeResult() {
+        val level = viewModel.level
         val intent = Intent(this, ExamResult::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
+        finish()
     }
 }
 
@@ -150,23 +155,27 @@ fun StoryAndQuizContent(
     currentStory: Story,
     currentQuiz: Int,
     answerStatus: AnswerStatus,
-    answer: Int?,
+    answer: Any?, // Can be Int or String based on level
     onNext: () -> Unit,
-    onSubmit: () -> Unit,
-    onChooseAnswer: (Int) -> Unit,
-    onSeeResult: () -> Unit
+    onSubmit: (String?) -> Unit,
+    onChooseAnswer: (Int) -> Unit, // Can handle both Int and String
+    onSeeResult: () -> Unit,
+    level: String?,
 ) {
-    Column (
-        modifier = Modifier.fillMaxWidth()
+    var fillInAnswer by remember { mutableStateOf("") }
+    val isHard = level?.lowercase() == "hard"
+    val quiz = currentStory.quiz[currentQuiz]
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .background(Color(0xFFF7F7F8)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val quiz = currentStory.quiz[currentQuiz]
         Image(
             painter = painterResource(id = currentStory.image),
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             contentDescription = null,
             contentScale = ContentScale.FillWidth
         )
@@ -181,136 +190,132 @@ fun StoryAndQuizContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
         ) {
-
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(16.dp),
             ) {
+                val questionNumber = when (level) {
+                    "easy" -> quiz.id
+                    "medium" -> quiz.id - 21
+                    "hard" -> quiz.id - 45
+                    else -> quiz.id
+                }
                 Text(
-                    text = "Question#${quiz.id}",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "Question#$questionNumber",
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = quiz.question,
                     style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 16.dp)
                 )
             }
         }
 
         Spacer(Modifier.height(20.dp))
-        Text(
-            text = "Choices:",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp)
-                .fillMaxWidth()
-        )
-        Spacer(Modifier.height(8.dp))
 
+        if (isHard) {
+            Text(
+                text = "Fill in the blank:",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+            )
 
+            Spacer(Modifier.height(8.dp))
 
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(
-                2.dp,
-                if(answerStatus !is AnswerStatus.None && quiz.correctAnswer == 1) Color.Green
-                else if(answerStatus is AnswerStatus.Wrong && answer == 1) Color.Red
-                else if(answerStatus is AnswerStatus.None && answer == 1) Color.Blue
-                else Color.LightGray
-            ),
-            modifier = Modifier
-                .clickable {
-                    if(answerStatus is AnswerStatus.None) {
-                        onChooseAnswer.invoke(1)
+            OutlinedTextField(
+                value = fillInAnswer.orEmpty(),
+                onValueChange = {
+                    fillInAnswer = it
+                },
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                enabled = answerStatus is AnswerStatus.None,
+                placeholder = { Text("Type your answer here.") }
+            )
+
+            if (answerStatus is AnswerStatus.Wrong) {
+                Spacer(Modifier.height(8.dp))
+
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(
+                        2.dp,
+                        Color.Green
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(16.dp),
+                    ) {
+                        Text(
+                            text = quiz.choices[quiz.correctAnswer - 1],
+                            style = MaterialTheme.typography.titleMedium,
+                        )
                     }
                 }
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-        ) {
-
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(16.dp),
-            ) {
-                Text(
-                    text = "A) ${quiz.choices[0]}",
-                    style = MaterialTheme.typography.titleMedium,
-                )
             }
-        }
 
-        Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
+        } else {
+            Text(
+                text = "Choices:",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+            )
 
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(
-                2.dp,
-                if(answerStatus !is AnswerStatus.None && quiz.correctAnswer == 2) Color.Green
-                else if(answerStatus is AnswerStatus.Wrong && answer == 2) Color.Red
-                else if(answerStatus is AnswerStatus.None && answer == 2) Color.Blue
-                else Color.LightGray
-                ),
-            modifier = Modifier
-                .clickable {
-                    if(answerStatus is AnswerStatus.None) {
-                        onChooseAnswer.invoke(2)
+            Spacer(Modifier.height(8.dp))
+
+            quiz.choices.forEachIndexed { index, choice ->
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(
+                        2.dp,
+                        when {
+                            answerStatus !is AnswerStatus.None && quiz.correctAnswer == index + 1 -> Color.Green
+                            answerStatus is AnswerStatus.Wrong && answer == index + 1 -> Color.Red
+                            answerStatus is AnswerStatus.None && answer == index + 1 -> Color.Blue
+                            else -> Color.LightGray
+                        }
+                    ),
+                    modifier = Modifier
+                        .clickable {
+                            if (answerStatus is AnswerStatus.None) {
+                                onChooseAnswer(index + 1)
+                            }
+                        }
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(16.dp),
+                    ) {
+                        Text(
+                            text = "${'A' + index}) $choice",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
                     }
                 }
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-        ) {
 
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(16.dp),
-            ) {
-                Text(
-                    text = "B) ${quiz.choices[1]}",
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Spacer(Modifier.height(8.dp))
             }
         }
-
-        Spacer(Modifier.height(8.dp))
-
-
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(
-                2.dp,
-                if(answerStatus !is AnswerStatus.None && quiz.correctAnswer == 3 ) Color.Green
-                else if(answerStatus is AnswerStatus.Wrong && answer == 3) Color.Red
-                else if(answerStatus is AnswerStatus.None && answer == 3) Color.Blue
-                else Color.LightGray
-                ),
-            modifier = Modifier
-                .clickable {
-                    if(answerStatus is AnswerStatus.None) {
-                        onChooseAnswer.invoke(3)
-                    }
-                }
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-        ) {
-
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(16.dp),
-            ) {
-                Text(
-                    text = "C) ${quiz.choices[2]}",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-        }
-
-        Spacer(Modifier.height(20.dp))
 
         if (answerStatus !is AnswerStatus.None) {
             val color = if (answerStatus is AnswerStatus.Correct) "#22bb33" else "#bb2124"
@@ -322,7 +327,6 @@ fun StoryAndQuizContent(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
             ) {
-
                 Column(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.padding(16.dp),
@@ -338,37 +342,49 @@ fun StoryAndQuizContent(
         }
 
         Spacer(Modifier.height(16.dp))
-            val buttonText = if (answerStatus is AnswerStatus.None) "Submit Answer" else {
-                if (quiz.id == 69) "See Result" else "Next Question"
-            }
-            Button(
-                onClick = {
-                    if (answerStatus is AnswerStatus.None) {
-                        onSubmit.invoke()
+
+        val lastNumber = when (level) {
+            "easy" ->  21
+            "medium" -> 45
+            "hard" -> 69
+            else -> 21
+        }
+
+        val buttonText = when {
+            answerStatus is AnswerStatus.None -> "Submit Answer"
+            quiz.id == lastNumber -> "See Result"
+            else -> "Next Question"
+        }
+
+        Button(
+            onClick = {
+                if (answerStatus is AnswerStatus.None) {
+                    onSubmit(fillInAnswer)
+                } else {
+                    if (quiz.id == lastNumber) {
+                        onSeeResult()
                     } else {
-                        if (quiz.id == 69) {
-                            onSeeResult.invoke()
-                        } else {
-                            onNext.invoke()
-                        }
+                        onNext()
+                        fillInAnswer = ""
                     }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49AFDC)),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(16.dp),
-                enabled = answer != null
-            ) {
-                Text(
-                    text = buttonText,
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
-                )
-            }
+                }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49AFDC)),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
+            contentPadding = PaddingValues(16.dp),
+            enabled = if (isHard) fillInAnswer.isNotBlank() else answer != null
+        ) {
+            Text(
+                text = buttonText,
+                style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
+            )
+        }
 
         Spacer(Modifier.height(16.dp))
     }
 }
+
 
 @Composable
 fun ExamCancellationDialog(onCancel: () -> Unit, onDismiss: () -> Unit) {
@@ -398,5 +414,15 @@ fun ExamCancellationDialog(onCancel: () -> Unit, onDismiss: () -> Unit) {
 @Composable
 @Preview
 fun StoryAndQuizContentPreview() {
-    StoryAndQuizContent(Story.STORY1, 0, AnswerStatus.Correct, 1, {}, {}, {}, {})
+    StoryAndQuizContent(
+        Story.STORY8,
+        0,
+        AnswerStatus.Correct,
+        1,
+        {},
+        {},
+        {},
+        {},
+        "medium",
+    )
 }

@@ -1,5 +1,6 @@
 package com.project.readme.presenter
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.project.readme.common.Resource
@@ -12,13 +13,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ExamResultViewModel @Inject constructor(private val bookRepository: BookRepository): ViewModel() {
+class ExamResultViewModel @Inject constructor(
+    private val bookRepository: BookRepository,
+    private val stateHandle: SavedStateHandle
+): ViewModel() {
 
     private val _score = MutableStateFlow<Resource<Int?>>(Resource.Loading())
     val score = _score.asStateFlow()
 
     private val _profile = MutableStateFlow<Resource<UserProfile?>>(Resource.Loading())
     val profile = _profile.asStateFlow()
+
+    val level = stateHandle.get<String>("level")
 
     init {
         getScore()
@@ -27,7 +33,7 @@ class ExamResultViewModel @Inject constructor(private val bookRepository: BookRe
 
     private fun getScore() {
         viewModelScope.launch {
-            _score.value = Resource.Success(bookRepository.getScore())
+            _score.value = Resource.Success(bookRepository.getScore(level!!))
         }
     }
 

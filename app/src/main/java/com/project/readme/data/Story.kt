@@ -505,7 +505,7 @@ enum class Quiz(
         id = 63,
         question = "They are _____.",
         choices = listOf("my friend", "my friends", "my teachers"),
-        2
+        1
     ),
 
     // Story #22
