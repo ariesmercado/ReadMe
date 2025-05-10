@@ -31,7 +31,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 2
-        versionName = "1.7"
+        versionName = "1.8"
         testInstrumentationRunner = "android.template.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true

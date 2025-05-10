@@ -7,6 +7,7 @@ import com.project.readme.common.Resource
 import com.project.readme.data.BookRepository
 import com.project.readme.data.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ class ExamResultViewModel @Inject constructor(
 
     private fun getScore() {
         viewModelScope.launch {
+            delay(0)
             _score.value = Resource.Success(bookRepository.getScore(level!!))
         }
     }
