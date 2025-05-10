@@ -7,16 +7,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,11 +40,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -47,9 +55,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.project.readme.R
 import com.project.readme.data.Story
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class StoryAndQuiz: ComponentActivity() {
@@ -150,6 +160,8 @@ class StoryAndQuiz: ComponentActivity() {
     }
 }
 
+
+
 @Composable
 fun StoryAndQuizContent(
     currentStory: Story,
@@ -166,163 +178,31 @@ fun StoryAndQuizContent(
     val isHard = level?.lowercase() == "hard"
     val quiz = currentStory.quiz[currentQuiz]
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .background(Color(0xFFF7F7F8)),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = currentStory.image),
-            modifier = Modifier.fillMaxWidth(),
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth
-        )
+    val emojis = listOf("🥳", "😢")
+    val floatingEmojis = remember { mutableStateListOf<AnimatedEmoji>() }
 
-        Spacer(Modifier.height(20.dp))
+    Box(modifier = Modifier.fillMaxWidth()) {
 
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(1.dp, Color.Black),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .background(Color(0xFFF7F7F8)),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(16.dp),
-            ) {
-                val questionNumber = when (level) {
-                    "easy" -> quiz.id
-                    "medium" -> quiz.id - 21
-                    "hard" -> quiz.id - 45
-                    else -> quiz.id
-                }
-                Text(
-                    text = "Question#$questionNumber",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = quiz.question,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
-        }
-
-        Spacer(Modifier.height(20.dp))
-
-        if (isHard) {
-            Text(
-                text = "Fill in the blank:",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
+            Image(
+                painter = painterResource(id = currentStory.image),
+                modifier = Modifier.fillMaxWidth(),
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(20.dp))
 
-            OutlinedTextField(
-                value = fillInAnswer.orEmpty(),
-                onValueChange = {
-                    fillInAnswer = it
-                },
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
-                enabled = answerStatus is AnswerStatus.None,
-                placeholder = { Text("Type your answer here.") }
-            )
-
-            if (answerStatus is AnswerStatus.Wrong) {
-                Spacer(Modifier.height(8.dp))
-
-                Card(
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(
-                        2.dp,
-                        Color.Green
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(16.dp),
-                    ) {
-                        Text(
-                            text = quiz.choices[quiz.correctAnswer - 1],
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-        } else {
-            Text(
-                text = "Choices:",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            quiz.choices.forEachIndexed { index, choice ->
-                Card(
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(
-                        2.dp,
-                        when {
-                            answerStatus !is AnswerStatus.None && quiz.correctAnswer == index + 1 -> Color.Green
-                            answerStatus is AnswerStatus.Wrong && answer == index + 1 -> Color.Red
-                            answerStatus is AnswerStatus.None && answer == index + 1 -> Color.Blue
-                            else -> Color.LightGray
-                        }
-                    ),
-                    modifier = Modifier
-                        .clickable {
-                            if (answerStatus is AnswerStatus.None) {
-                                onChooseAnswer(index + 1)
-                            }
-                        }
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(16.dp),
-                    ) {
-                        Text(
-                            text = "${'A' + index}) $choice",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-
-        if (answerStatus !is AnswerStatus.None) {
-            val color = if (answerStatus is AnswerStatus.Correct) "#22bb33" else "#bb2124"
             Card(
                 shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(android.graphics.Color.parseColor(color))),
-                border = BorderStroke(1.dp, Color.LightGray),
+                border = BorderStroke(1.dp, Color.Black),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -331,60 +211,252 @@ fun StoryAndQuizContent(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.padding(16.dp),
                 ) {
+                    val questionNumber = when (level) {
+                        "easy" -> quiz.id
+                        "medium" -> quiz.id - 21
+                        "hard" -> quiz.id - 45
+                        else -> quiz.id
+                    }
                     Text(
-                        text = if (answerStatus is AnswerStatus.Correct) "Correct!" else "Wrong!",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
+                        text = "Question#$questionNumber",
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = quiz.question,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 16.dp)
                     )
                 }
             }
-        }
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
-        val lastNumber = when (level) {
-            "easy" ->  21
-            "medium" -> 45
-            "hard" -> 69
-            else -> 21
-        }
+            if (isHard) {
+                Text(
+                    text = "Fill in the blank:",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                )
 
-        val buttonText = when {
-            answerStatus is AnswerStatus.None -> "Submit Answer"
-            quiz.id == lastNumber -> "See Result"
-            else -> "Next Question"
-        }
+                Spacer(Modifier.height(8.dp))
 
-        Button(
-            onClick = {
-                if (answerStatus is AnswerStatus.None) {
-                    onSubmit(fillInAnswer)
-                } else {
-                    if (quiz.id == lastNumber) {
-                        onSeeResult()
-                    } else {
-                        onNext()
-                        fillInAnswer = ""
+                OutlinedTextField(
+                    value = fillInAnswer.orEmpty(),
+                    onValueChange = {
+                        fillInAnswer = it
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    enabled = answerStatus is AnswerStatus.None,
+                    placeholder = { Text("Type your answer here.") }
+                )
+
+                if (answerStatus is AnswerStatus.Wrong) {
+                    Spacer(Modifier.height(8.dp))
+
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(
+                            2.dp,
+                            Color.Green
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(16.dp),
+                        ) {
+                            Text(
+                                text = quiz.choices[quiz.correctAnswer - 1],
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
                     }
                 }
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49AFDC)),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(16.dp),
-            enabled = if (isHard) fillInAnswer.isNotBlank() else answer != null
-        ) {
-            Text(
-                text = buttonText,
-                style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
-            )
+
+                Spacer(Modifier.height(16.dp))
+            } else {
+                Text(
+                    text = "Choices:",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                quiz.choices.forEachIndexed { index, choice ->
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(
+                            2.dp,
+                            when {
+                                answerStatus !is AnswerStatus.None && quiz.correctAnswer == index + 1 -> Color.Green
+                                answerStatus is AnswerStatus.Wrong && answer == index + 1 -> Color.Red
+                                answerStatus is AnswerStatus.None && answer == index + 1 -> Color.Blue
+                                else -> Color.LightGray
+                            }
+                        ),
+                        modifier = Modifier
+                            .clickable {
+                                if (answerStatus is AnswerStatus.None) {
+                                    onChooseAnswer(index + 1)
+                                }
+                            }
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(16.dp),
+                        ) {
+                            Text(
+                                text = "${'A' + index}) $choice",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+
+            if (answerStatus !is AnswerStatus.None) {
+                val color = if (answerStatus is AnswerStatus.Correct) "#22bb33" else "#bb2124"
+                LaunchedEffect(answerStatus) {
+                        val emoji = if (answerStatus is AnswerStatus.Correct) "🥳" else "😢"
+                        floatingEmojis.add(AnimatedEmoji(emoji = emoji, id = System.currentTimeMillis()))
+                }
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(
+                            android.graphics.Color.parseColor(
+                                color
+                            )
+                        )
+                    ),
+                    border = BorderStroke(1.dp, Color.LightGray),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(16.dp),
+                    ) {
+                        Text(
+                            text = if (answerStatus is AnswerStatus.Correct) "Correct!" else "Wrong!",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            val lastNumber = when (level) {
+                "easy" -> 21
+                "medium" -> 45
+                "hard" -> 69
+                else -> 21
+            }
+
+            val buttonText = when {
+                answerStatus is AnswerStatus.None -> "Submit Answer"
+                quiz.id == lastNumber -> "See Result"
+                else -> "Next Question"
+            }
+
+            Button(
+                onClick = {
+                    if (answerStatus is AnswerStatus.None) {
+                        onSubmit(fillInAnswer)
+                    } else {
+                        if (quiz.id == lastNumber) {
+                            onSeeResult()
+                        } else {
+                            onNext()
+                            fillInAnswer = ""
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49AFDC)),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(16.dp),
+                enabled = if (isHard) fillInAnswer.isNotBlank() else answer != null
+            ) {
+                Text(
+                    text = buttonText,
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
         }
 
-        Spacer(Modifier.height(16.dp))
+        floatingEmojis.forEach { emojiItem ->
+            FloatingEmoji(
+                emoji = emojiItem.emoji,
+                onAnimationEnd = {
+                    floatingEmojis.remove(emojiItem)
+                }
+            )
+        }
     }
 }
 
+data class AnimatedEmoji(val emoji: String, val id: Long)
+
+@Composable
+fun FloatingEmoji(emoji: String, onAnimationEnd: () -> Unit) {
+    val yOffset = remember { Animatable(0f) }
+    val alpha = remember { Animatable(1f) }
+
+    LaunchedEffect(Unit) {
+        launch {
+            yOffset.animateTo(
+                targetValue = -300f,
+                animationSpec = tween(durationMillis = 1500, easing = LinearEasing)
+            )
+        }
+        launch {
+            alpha.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(durationMillis = 1500)
+            )
+            onAnimationEnd()
+        }
+    }
+
+    Box (Modifier.fillMaxSize().padding(24.dp),
+        ) {
+        Text(
+            text = emoji,
+            fontSize = 100.sp,
+            modifier = Modifier
+                .offset(y = yOffset.value.dp)
+                .align(Alignment.BottomEnd)
+                .alpha(alpha.value)
+        )
+    }
+}
 
 @Composable
 fun ExamCancellationDialog(onCancel: () -> Unit, onDismiss: () -> Unit) {
