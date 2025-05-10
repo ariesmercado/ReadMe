@@ -498,21 +498,21 @@ fun AMod(onTakeTestClick: (String) -> Unit, onShareResultClick: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Easy", color = Color(0xFF007AFF))
+                Text(text = "Easy", color = Color(0xFF007AFF), style = MaterialTheme.typography.titleMedium)
             }
             Button(
                 onClick = { onTakeTestClick.invoke("medium") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Medium", color = Color(0xFF007AFF))
+                Text(text = "Medium", color = Color(0xFF007AFF), style = MaterialTheme.typography.titleMedium)
             }
             Button(
                 onClick = { onTakeTestClick.invoke("hard") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Hard", color = Color(0xFF007AFF))
+                Text(text = "Hard", color = Color(0xFF007AFF), style = MaterialTheme.typography.titleMedium)
             }
         }
     }
