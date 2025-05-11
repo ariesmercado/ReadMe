@@ -440,7 +440,7 @@ fun MediumTopAppBarExample(
                         }
 
                         item {
-                            if (books.size != 16 && books.isNotEmpty() && searchText.isNotEmpty()) {
+                            if (books.size != 16 && books.isNotEmpty()) {
                                 Timber.d("CircularProgressBarPaging")
                                 Spacer(modifier = Modifier.height(16.dp))
                                 CircularProgressBarPaging()
