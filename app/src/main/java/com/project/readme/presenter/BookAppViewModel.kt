@@ -76,20 +76,4 @@ class BookAppViewModel @Inject constructor(
         }
     }
 
-
-
-    fun search(term: String, context: Context) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            if (term.isNotBlank()) {
-                val newList = _lessons.value.filter { it.name.lowercase().contains(term.lowercase()) }.toMutableList()
-                if ((newList.size % 2) != 0) {
-                    newList.add(Book("++", emptyList()))
-                }
-                _lessons.value = newList
-            } else {
-                _lessons.value = listCopy.value
-            }
-        }
-    }
 }

@@ -139,7 +139,7 @@ class BookAppActivity : ComponentActivity() {
                         ) {
                             composable("home") {
                                 if(profile is Resource.Success) {
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::onSearch, ::navigateToCover, ::onNextPage, page)
+                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::navigateToCover, ::onNextPage, page)
                                 }
                             }
                             composable("favorites") {
@@ -165,10 +165,6 @@ class BookAppActivity : ComponentActivity() {
             }
         }
 
-    }
-
-    private fun onSearch(term: String) {
-        viewModel.search(term, this)
     }
 
     private fun onNextPage() {
@@ -290,7 +286,6 @@ fun MediumTopAppBarExample(
     books: List<Book>,
     user: UserProfile?,
     onItemClicked: (bookTitle: String) -> Unit,
-    onSearch: (String) -> Unit,
     onComprehensionCover: (String) -> Unit,
     onNextPage: () -> Unit,
     page: Int,
@@ -393,6 +388,7 @@ fun MediumTopAppBarExample(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    var searchText by remember { mutableStateOf("") }
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize()
@@ -402,45 +398,49 @@ fun MediumTopAppBarExample(
                         // Search Bar
                         stickyHeader {
                             Column(modifier = Modifier.background(color = Color.White)) {
-                                var searchText by remember { mutableStateOf("") }
                                 Spacer(modifier = Modifier.height(if (isCollapsed) 0.dp else 20.dp))
                                 SearchBar(searchText) {
                                     searchText = it
-                                    onSearch.invoke(it)
                                 }
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
 
-                        item {
-                            AMod(onComprehensionCover, {})
-                        }
+                        if (searchText.isBlank()) {
+                            item {
+                                AMod(onComprehensionCover, {})
+                            }
 
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Text(
-                                    text = "Recommended Books",
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = "Recommended Books",
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
 
+
                         item {
-                            Timber.d("ListBooks -> $books")
-                            if (books.isNotEmpty()) {
-                                ListBooks(books, onItemClicked)
+                            val filteredBooks = if (searchText.isNotBlank()) books.filter { it.name.lowercase().contains(searchText.lowercase()) }.toMutableList() else books.toMutableList()
+                            if ((filteredBooks.size % 2) != 0) {
+                                filteredBooks.add(Book("++", emptyList()))
+                            }
+                            if (filteredBooks.isNotEmpty()) {
+                                ListBooks(filteredBooks, onItemClicked)
                             } else {
                                 CircularProgressBar()
                             }
                         }
 
                         item {
-                            if (books.size != 16 && books.isNotEmpty()) {
+                            if (books.size != 16 && books.isNotEmpty() && searchText.isNotEmpty()) {
                                 Timber.d("CircularProgressBarPaging")
                                 Spacer(modifier = Modifier.height(16.dp))
                                 CircularProgressBarPaging()
