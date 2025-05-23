@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,6 +43,8 @@ import com.project.readme.data.UserProfile
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.core.graphics.toColorInt
+import com.project.readme.common.MainColorUtils
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -98,16 +101,10 @@ class SplashScreenActivity : ComponentActivity() {
         ) {
             Box(
                 modifier = Modifier.fillMaxSize()
+                    .background(color = MainColorUtils.primary)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.readme_bg), // Replace with your background image resource
-                    contentDescription = null,
-                    contentScale = ContentScale.FillHeight, // Adjusts how the image fits the background
-                    modifier = Modifier.fillMaxSize() // Make the image fill the entire background
-                )
-
-                Image(
-                    painter = painterResource(id = R.drawable.readme_brand_logo), // Replace with your brand logo resource
+                    painter = painterResource(id = R.drawable.e_math_insayo_logo), // Replace with your brand logo resource
                     contentDescription = null,
                     contentScale = ContentScale.Inside, // Adjusts how the image fits the background
                     modifier = Modifier
@@ -124,16 +121,7 @@ class SplashScreenActivity : ComponentActivity() {
                 ) {
                     Text(
                         buildAnnotatedString {
-                            append("Powered by The Queens ")
-                            withStyle(
-                                style = SpanStyle(
-                                    fontSize = 8.sp, // Smaller size for the exponent effect
-                                    baselineShift = BaselineShift.Superscript, // Lift the text
-                                    fontWeight = FontWeight.Bold // Optional: make it bold for emphasis
-                                )
-                            ) {
-                                append("PRJ")
-                            }
+                            append("Powered by Bea's Group")
                         },
                         style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
                     )
