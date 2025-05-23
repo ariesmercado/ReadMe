@@ -183,8 +183,8 @@ class BookAppActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    private fun updateProfile(name: String,age: Int, grade: Int,selectedAvatar: Int) {
-        viewModel.updateUserProfile(name, age, grade, selectedAvatar)
+    private fun updateProfile(name: String,selectedAvatar: Int) {
+        viewModel.updateUserProfile(name, selectedAvatar)
         Toast.makeText(this, "Your profile has been successfully updated!", Toast.LENGTH_SHORT).show()
     }
 }
@@ -270,7 +270,7 @@ fun FavoritesScreen() {
 }
 
 @Composable
-fun ProfileScreen(kFunction4: (String, Int, Int, Int) -> Unit, profile: UserProfile?) {
+fun ProfileScreen(kFunction4: (String, Int) -> Unit, profile: UserProfile?) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

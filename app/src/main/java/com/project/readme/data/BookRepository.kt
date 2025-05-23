@@ -12,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 
 interface BookRepository {
     val user: StateFlow<UserProfile?>
-    suspend fun updateUserProfile(name: String, age:Int, grade: Int, @DrawableRes profilePic: Int)
+    suspend fun updateUserProfile(name: String, @DrawableRes profilePic: Int)
     suspend fun getUserProfile(): UserProfile?
     suspend fun addToFavorites(title: String):Long
     suspend fun removeToFavorites(title: String)
@@ -26,27 +26,23 @@ interface BookRepository {
 class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, private val database: AppDatabase): BookRepository {
     override val user = MutableStateFlow<UserProfile?>(null)
 
-    override suspend fun updateUserProfile(name: String, age: Int, grade: Int, @DrawableRes profilePic: Int) {
+    override suspend fun updateUserProfile(name: String, @DrawableRes profilePic: Int) {
         dataStorageHelper.apply {
             saveValue("UserName", name)
-            saveValue("UserAge", age)
-            saveValue("UserGrade", grade)
             saveValue("UserProfile", profilePic)
         }
 
-        user.emit(UserProfile(name,age,grade,profilePic))
+        user.emit(UserProfile(name,profilePic))
     }
 
 
 
     override suspend fun getUserProfile(): UserProfile? {
         val userName = dataStorageHelper.getValue<String>("UserName") ?: return null
-        val age = dataStorageHelper.getValue<Int>("UserAge") ?: return null
-        val grade = dataStorageHelper.getValue<Int>("UserGrade") ?: return null
         val profile = dataStorageHelper.getValue<Int>("UserProfile") ?: return null
 
-        user.emit(UserProfile(userName,age,grade,profile))
-        return UserProfile(userName,age, grade, profile)
+        user.emit(UserProfile(userName,profile))
+        return UserProfile(userName, profile)
     }
 
     override suspend fun addToFavorites(title: String): Long {

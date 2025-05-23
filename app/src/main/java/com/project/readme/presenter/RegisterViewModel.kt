@@ -20,9 +20,9 @@ class RegisterViewModel @Inject constructor(private val bookRepository: BookRepo
         getUserProfile()
     }
 
-    fun updateUserProfile(name: String,age: Int, grade: Int,selectedAvatar: Int) {
+    fun updateUserProfile(name: String,selectedAvatar: Int) {
         viewModelScope.launch {
-            bookRepository.updateUserProfile(name, age, grade, selectedAvatar)
+            bookRepository.updateUserProfile(name, selectedAvatar)
             _profile.value = Resource.Success(bookRepository.getUserProfile())
         }
     }
