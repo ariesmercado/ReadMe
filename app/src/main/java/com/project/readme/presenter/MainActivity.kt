@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.OnInitListener
@@ -34,6 +35,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
@@ -223,6 +225,7 @@ fun BookPager(
     val pagerState = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
     var selectedPage by remember { mutableStateOf(pages.first()) }
+    val context = LocalContext.current
 
     val recordIntent =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -256,6 +259,19 @@ fun BookPager(
         )
 
         val isFavorite = favorites.any { it.contains(title) }
+
+        IconButton(onClick = {
+            (context as? Activity)?.finish()
+        }, modifier = Modifier.padding(16.dp).align(Alignment.TopStart)) {
+
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = if (isFavorite) "remove" else "add",
+                tint = Color.DarkGray,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+
         IconButton(onClick = { eventHandler.toggleFavorite(title, isFavorite) }, modifier = Modifier.padding(16.dp).align(Alignment.TopEnd)) {
 
             Icon(

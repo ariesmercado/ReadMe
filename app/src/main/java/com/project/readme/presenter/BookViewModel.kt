@@ -11,6 +11,7 @@ import com.project.readme.data.BookRepository
 import com.project.readme.data.UserProfile
 import com.project.readme.data.genarator.LessonUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,10 @@ class BookViewModel @Inject constructor(private val savedStateHandle: SavedState
 
     fun loadLessons(context: Context) {
         viewModelScope.launch {
-            _selectedBook.value = LessonUtil.loadLessonsFromAssets(context).find { it.name == savedStateHandle["Title"] }
+            delay(1500)
+            savedStateHandle.get<String?>("Title")?.let {
+                _selectedBook.value = LessonUtil.loadBookFromAssets(context, it)
+            }
         }
     }
 

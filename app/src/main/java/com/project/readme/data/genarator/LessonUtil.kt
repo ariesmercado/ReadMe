@@ -3,14 +3,30 @@ package com.project.readme.data.genarator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.annotation.DrawableRes
-import com.project.readme.R
-import com.project.readme.data.Page
 import com.project.readme.data.Book
-import com.project.readme.data.BookCovers.*
+import com.project.readme.data.BookCovers.A_DAY_AT_THE_BEACH
+import com.project.readme.data.BookCovers.A_KING_SHEPHERD
+import com.project.readme.data.BookCovers.A_MERCHANDISE
+import com.project.readme.data.BookCovers.BEN_GOES_FISHING
+import com.project.readme.data.BookCovers.CAMPING
+import com.project.readme.data.BookCovers.DENTIST
+import com.project.readme.data.BookCovers.GOOSE
+import com.project.readme.data.BookCovers.HOME_SCHOOL
+import com.project.readme.data.BookCovers.LETTERS
+import com.project.readme.data.BookCovers.LUCAS
+import com.project.readme.data.BookCovers.PIZZA_FOR_POLLY
+import com.project.readme.data.BookCovers.SEEDS_ON_THE_MOVE
+import com.project.readme.data.BookCovers.SIGHT_WORDS
+import com.project.readme.data.BookCovers.THE_ANT_AND_GRASSHOPPER
+import com.project.readme.data.BookCovers.THE_ANT_AND_THE_DOVE
+import com.project.readme.data.BookCovers.THE_CLEAN_PARK
+import com.project.readme.data.BookCovers.THE_COWS_AND_LIONS
+import com.project.readme.data.BookCovers.THE_DOG_AND_THE_SPARROW
+import com.project.readme.data.BookCovers.THE_KITE
+import com.project.readme.data.BookCovers.THIRSTY_CROW
+import com.project.readme.data.Page
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 object LessonUtil {
 
@@ -35,7 +51,8 @@ object LessonUtil {
                         val text = readTextFromAsset(context, "Lessons/$lessonDir/$asset")
 
                         // Load the corresponding image as Bitmap
-                        val image = loadImageFromAssets(context, "Lessons/$lessonDir/${bookName}.png")
+                        val image =
+                            loadImageFromAssets(context, "Lessons/$lessonDir/${bookName}.png")
 
                         // Create a Page object
                         pages.add(Page(name = bookName, image = image, text = text))
@@ -51,15 +68,19 @@ object LessonUtil {
                 0 -> {
                     books.arrangePages()
                 }
+
                 1 -> {
                     books.arrangePages().take(6)
                 }
+
                 2 -> {
                     books.arrangePages().subList(6, 12)
                 }
+
                 3 -> {
                     books.arrangePages().subList(13, 17)
                 }
+
                 else -> {
                     emptyList()
                 }
@@ -67,6 +88,37 @@ object LessonUtil {
         }
     }
 
+    suspend fun loadBookFromAssets(context: Context, term: String): Book? {
+        return withContext(Dispatchers.IO) {
+
+            // Access the lessons directory in the assets folder
+            val lessonDirectories = context.assets.list("Lessons") ?: return@withContext null
+
+            val book = lessonDirectories.find { it.lowercase() == term.lowercase() }
+            val pages = mutableListOf<Page>()
+            val lessonAssets = context.assets.list("Lessons/$book")?.take(6)
+
+
+            // Loop through the assets in each lesson directory (Books, etc.)
+            lessonAssets?.forEach { asset ->
+                if (asset.endsWith(".txt")) {
+                    val bookName = asset.substringBefore(".txt")
+
+                    // Read text from the .txt file
+                    val text = readTextFromAsset(context, "Lessons/$book/$asset")
+
+                    // Load the corresponding image as Bitmap
+                    val image = loadImageFromAssets(context, "Lessons/$book/${bookName}.png")
+
+                    // Create a Page object
+                    pages.add(Page(name = bookName, image = image, text = text))
+                }
+            }
+
+            // Create a Book object and add it to the list
+            book?.let { Book(name = it, pages = pages) }
+        }
+    }
 
     private fun List<Book>.arrangePages(): List<Book> {
         val books = this.filterNot { it.name in unavailableBooks() }

@@ -61,14 +61,25 @@ class ComprehensionCover: ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getScore()
+    }
+
     private fun navigateToStoryAndQuizzes() {
+        val level = viewModel.level
         val intent = Intent(this, StoryAndQuiz::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
+        finish()
     }
 
     private fun navigateToResult() {
+        val level = viewModel.level
         val intent = Intent(this, ExamResult::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
+        finish()
     }
 
 }
@@ -127,18 +138,18 @@ fun CoverAndOption(onTake: () -> Unit, onResult: () -> Unit, score: Resource<Int
                     )
 
                     Text(
-                        text = "1. Choose the word or sentence that fits in the blank.",
+                        text = "Step 1: Read the books carefully.",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 16.dp)
                     )
 
                     Text(
-                        text = "2. Select the correct option from the choices provided.",
+                        text = "Step 2: Select and encode the correct answer.",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                     Text(
-                        text = "3. Review your answers before submitting.",
+                        text = "Step 3: Review and confirm your final response.",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 8.dp)
                     )

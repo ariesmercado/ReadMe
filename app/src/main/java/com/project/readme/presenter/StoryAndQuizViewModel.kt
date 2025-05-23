@@ -1,5 +1,6 @@
 package com.project.readme.presenter
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.project.readme.data.BookRepository
@@ -11,9 +12,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StoryAndQuizViewModel @Inject constructor(private val bookRepository: BookRepository): ViewModel() {
+class StoryAndQuizViewModel @Inject constructor(
+    private val bookRepository: BookRepository,
+    val stateHandle: SavedStateHandle
+): ViewModel() {
 
-    private val _currentStory =  MutableStateFlow(Story.STORY1)
+    val level = stateHandle.get<String>("level")
+
+    private val _currentStory = MutableStateFlow(
+        when (level) {
+            "easy" -> Story.STORY1
+            "medium" -> Story.STORY8
+            "hard" -> Story.STORY16
+            else -> Story.STORY1 // fallback/default
+        }
+    )
     val currentStory = _currentStory.asStateFlow()
 
     private val _currentQuiz = MutableStateFlow(0)
@@ -50,12 +63,16 @@ class StoryAndQuizViewModel @Inject constructor(private val bookRepository: Book
         _answer.value = number
     }
 
-    fun onSubmitAnswer() {
+    fun onSubmitAnswer(fillBlankAnswer: String? = null) {
         viewModelScope.launch {
             val quizzes = currentStory.value.quiz
             val cQuiz = quizzes[currentQuiz.value]
             val currentScore = score.value
-            if (cQuiz.correctAnswer == answer.value) {
+            if(level == "hard" && fillBlankAnswer?.lowercase() == cQuiz.choices[cQuiz.correctAnswer - 1].lowercase()) {
+                _score.value = (currentScore ?: 0) + 1
+                _answerStatus.value = AnswerStatus.Correct
+            }
+            else if (cQuiz.correctAnswer == answer.value) {
                 _score.value = (currentScore ?: 0) + 1
                 _answerStatus.value = AnswerStatus.Correct
             }
@@ -63,8 +80,22 @@ class StoryAndQuizViewModel @Inject constructor(private val bookRepository: Book
                 _answerStatus.value = AnswerStatus.Wrong
             }
 
-            if (cQuiz.id == 69) {
-                score.value?.let { bookRepository.updateScore(it) }
+            when (level) {
+                "easy" -> {
+                    if (cQuiz.id == 21) {
+                        score.value?.let { bookRepository.updateScore(it, level) }
+                    }
+                }
+                "medium" -> {
+                    if (cQuiz.id == 45) {
+                        score.value?.let { bookRepository.updateScore(it, level) }
+                    }
+                }
+                "hard" -> {
+                    if (cQuiz.id == 69) {
+                        score.value?.let { bookRepository.updateScore(it, level) }
+                    }
+                }
             }
         }
     }
