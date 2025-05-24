@@ -108,8 +108,6 @@ class BookAppActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val decorView = window.decorView
 
-        viewModel.loadLessons(this)
-
         val wic = WindowInsetsControllerCompat(window, decorView)
         wic.isAppearanceLightStatusBars = true // true or false as desired.
         // And then you can set any background color to the status bar.
@@ -118,10 +116,7 @@ class BookAppActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            val books by viewModel.lesson.collectAsState()
             val profile by viewModel.profile.collectAsState()
-            val favorites by viewModel.favorites.collectAsState()
-            val page by viewModel.page.collectAsState()
             val navController = rememberNavController()
             ReadMeTheme {
                     // The NavHost occupies the remaining space above the bottom navigation bar
@@ -135,19 +130,15 @@ class BookAppActivity : ComponentActivity() {
                             composable("home") {
                                 if(profile is Resource.Success) {
                                     Timber.d("profile.data -> ${profile.data}")
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::navigateToCover, ::onNextPage, page, ::navigateToLesson)
+                                    MediumTopAppBarExample(profile.data, ::navigateToLesson)
                                 }
                             }
                             composable("results") {
-                                if (false) { // this is the orig value -> favorites.isNotEmpty()
-                                    FavoritesBooks(favorites, ::navigateToMainScreen)
-                                } else {
                                     FavoritesScreen()
-                                }
                             }
                             composable("about") {
-                                Toast.makeText(LocalContext.current, "This Page is currently unavailable", Toast.LENGTH_SHORT).show()
                                 //AboutPage()
+                                FavoritesScreen()
                             }
 
                             composable("profile") {
@@ -162,22 +153,6 @@ class BookAppActivity : ComponentActivity() {
             }
         }
 
-    }
-
-    private fun onNextPage() {
-        viewModel.loadNextLessons(this)
-    }
-
-    private fun navigateToMainScreen(bookTitle: String) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("Title", bookTitle)
-        startActivity(intent)
-    }
-
-    private fun navigateToCover(level: String) {
-        val intent = Intent(this, ComprehensionCover::class.java)
-        intent.putExtra("level", level)
-        startActivity(intent)
     }
 
     private fun navigateToLesson() {
@@ -285,22 +260,15 @@ fun ProfileScreen(kFunction4: (String, Int) -> Unit, profile: UserProfile?) {
 @ExperimentalMaterial3Api
 @Composable
 fun MediumTopAppBarExample(
-    books: List<Book>,
     user: UserProfile?,
-    onItemClicked: (bookTitle: String) -> Unit,
-    onComprehensionCover: (String) -> Unit,
-    onNextPage: () -> Unit,
-    page: Int,
     onLessonClick: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     // Detect scroll state to conditionally apply rounded corners
-    val scrollState = scrollBehavior.state
     val isCollapsed = true // Adjust this value based on how much the header should collapse
 
     // Remember the state of the LazyColumn
-    val listState = rememberLazyListState()
     // Box to layer the image background and content
     Box(
         modifier = Modifier.fillMaxSize()
@@ -537,7 +505,6 @@ fun SubjectButtonPreview() {
 @Composable
 fun FavoritesBooks(
     books: List<String>,
-    onItemClicked: (bookTitle: String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -598,7 +565,7 @@ fun FavoritesBooks(
                     ) {
                         // Example content (popular books, etc.)
                         item {
-                            FavoritesBooksItems(books, onItemClicked)
+                            FavoritesBooksItems(books)
                         }
 
                         item {
@@ -613,7 +580,7 @@ fun FavoritesBooks(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FavoritesBooksItems(books: List<String>, onItemClicked: (bookTitle: String) -> Unit) {
+fun FavoritesBooksItems(books: List<String>) {
     val view = LocalView.current
 
     val newList = books.toMutableList()
@@ -634,12 +601,8 @@ fun FavoritesBooksItems(books: List<String>, onItemClicked: (bookTitle: String) 
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
                         view.playSoundEffect(SoundEffectConstants.CLICK)
-                        onItemClicked(title)
                     }
             ) {
-                LessonUtil.getCover(title)?.let {
-                    CompressedAsyncImage(imageResId = it)
-                }
             }
         }
     }

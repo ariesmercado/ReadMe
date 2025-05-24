@@ -48,32 +48,4 @@ class BookAppViewModel @Inject constructor(
         }
     }
 
-    fun loadLessons(context: Context) {
-        viewModelScope.launch {
-            val newList = LessonUtil.loadLessonsFromAssets(context, 1).toMutableList()
-            _lessons.value = newList
-            listCopy.value = _lessons.value
-            Timber.d ("newList: ${listCopy.value}")
-        }
-    }
-
-    fun loadNextLessons(context: Context) {
-        val cp = page.value
-        Timber.d("loadNextLessons -> $cp")
-        if (cp > 2) return
-        viewModelScope.launch {
-            _page.value = cp + 1
-            val newList = LessonUtil.loadLessonsFromAssets(context, _page.value).toMutableList()
-            if ((newList.size % 2) != 0 && _page.value == 3) {
-                newList.add(Book("++", emptyList()))
-            }
-
-            val transList: MutableList<Book> = _lessons.value.toMutableList()
-            transList.addAll(newList)
-            _lessons.value = transList
-            listCopy.value = _lessons.value
-            Timber.d ("newList: ${listCopy.value}")
-        }
-    }
-
 }

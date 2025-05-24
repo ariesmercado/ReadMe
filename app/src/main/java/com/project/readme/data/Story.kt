@@ -5,7 +5,7 @@ import com.project.readme.R
 
 enum class Story(
     var id: Int,
-    @DrawableRes var image: Int,
+    @DrawableRes var image: Int? = null,
     var quiz: List<Quiz>,
     var nextStory: Story? = null
 )
@@ -17,73 +17,73 @@ enum class Story(
 //    STORY24(id = 24, image = R.drawable.story_24, quiz = listOf(Quiz.QUIZ70, Quiz.QUIZ71, Quiz.QUIZ72), nextStory = STORY23),
 
     // Story #23
-    STORY23(id = 23, image = R.drawable.story_23, quiz = listOf(Quiz.QUIZ67, Quiz.QUIZ68, Quiz.QUIZ69)),
+    STORY23(id = 23, quiz = listOf(Quiz.QUIZ67, Quiz.QUIZ68, Quiz.QUIZ69)),
 
     // Story #22
-    STORY22(id = 22, image = R.drawable.story_22, quiz = listOf(Quiz.QUIZ64, Quiz.QUIZ65, Quiz.QUIZ66), nextStory = STORY23),
+    STORY22(id = 22, quiz = listOf(Quiz.QUIZ64, Quiz.QUIZ65, Quiz.QUIZ66), nextStory = STORY23),
 
     // Story #21
-    STORY21(id = 21, image = R.drawable.story_21, quiz = listOf(Quiz.QUIZ61, Quiz.QUIZ62, Quiz.QUIZ63), nextStory = STORY22),
+    STORY21(id = 21, quiz = listOf(Quiz.QUIZ61, Quiz.QUIZ62, Quiz.QUIZ63), nextStory = STORY22),
 
     // Story #20
-    STORY20(id = 20, image = R.drawable.story_20, quiz = listOf(Quiz.QUIZ58, Quiz.QUIZ59, Quiz.QUIZ60), nextStory = STORY21),
+    STORY20(id = 20, quiz = listOf(Quiz.QUIZ58, Quiz.QUIZ59, Quiz.QUIZ60), nextStory = STORY21),
 
     // Story #19
-    STORY19(id = 19, image = R.drawable.story_19, quiz = listOf(Quiz.QUIZ55, Quiz.QUIZ56, Quiz.QUIZ57), nextStory = STORY20),
+    STORY19(id = 19, quiz = listOf(Quiz.QUIZ55, Quiz.QUIZ56, Quiz.QUIZ57), nextStory = STORY20),
 
     // Story #18
-    STORY18(id = 18, image = R.drawable.story_18, quiz = listOf(Quiz.QUIZ52, Quiz.QUIZ53, Quiz.QUIZ54), nextStory = STORY19),
+    STORY18(id = 18, quiz = listOf(Quiz.QUIZ52, Quiz.QUIZ53, Quiz.QUIZ54), nextStory = STORY19),
 
     // Story #17
-    STORY17(id = 17, image = R.drawable.story_17, quiz = listOf(Quiz.QUIZ49, Quiz.QUIZ50, Quiz.QUIZ51), nextStory = STORY18),
+    STORY17(id = 17, quiz = listOf(Quiz.QUIZ49, Quiz.QUIZ50, Quiz.QUIZ51), nextStory = STORY18),
 
     // Story #16
-    STORY16(id = 16, image = R.drawable.story_16, quiz = listOf(Quiz.QUIZ46, Quiz.QUIZ47, Quiz.QUIZ48), nextStory = STORY17),
+    STORY16(id = 16, quiz = listOf(Quiz.QUIZ46, Quiz.QUIZ47, Quiz.QUIZ48), nextStory = STORY17),
 
     // Story #15
-    STORY15(id = 15, image = R.drawable.story_15, quiz = listOf(Quiz.QUIZ43, Quiz.QUIZ44, Quiz.QUIZ45), nextStory = STORY16),
+    STORY15(id = 15, quiz = listOf(Quiz.QUIZ43, Quiz.QUIZ44, Quiz.QUIZ45), nextStory = STORY16),
 
     // Story #14
-    STORY14(id = 14, image = R.drawable.story_14, quiz = listOf(Quiz.QUIZ40, Quiz.QUIZ41, Quiz.QUIZ42), nextStory = STORY15),
+    STORY14(id = 14, quiz = listOf(Quiz.QUIZ40, Quiz.QUIZ41, Quiz.QUIZ42), nextStory = STORY15),
 
     // Story #13
-    STORY13(id = 13, image = R.drawable.story_13, quiz = listOf(Quiz.QUIZ37, Quiz.QUIZ38, Quiz.QUIZ39), nextStory = STORY14),
+    STORY13(id = 13, quiz = listOf(Quiz.QUIZ37, Quiz.QUIZ38, Quiz.QUIZ39), nextStory = STORY14),
 
     // Story #12
-    STORY12(id = 12, image = R.drawable.story_12, quiz = listOf(Quiz.QUIZ34, Quiz.QUIZ35, Quiz.QUIZ36), nextStory = STORY13),
+    STORY12(id = 12, quiz = listOf(Quiz.QUIZ34, Quiz.QUIZ35, Quiz.QUIZ36), nextStory = STORY13),
 
     // Story #11
-    STORY11(id = 11, image = R.drawable.story_11, quiz = listOf(Quiz.QUIZ31, Quiz.QUIZ32, Quiz.QUIZ33), nextStory = STORY12),
+    STORY11(id = 11, quiz = listOf(Quiz.QUIZ31, Quiz.QUIZ32, Quiz.QUIZ33), nextStory = STORY12),
 
     // Story #10
-    STORY10(id = 10, image = R.drawable.story_10, quiz = listOf(Quiz.QUIZ28, Quiz.QUIZ29, Quiz.QUIZ30), nextStory = STORY11),
+    STORY10(id = 10, quiz = listOf(Quiz.QUIZ28, Quiz.QUIZ29, Quiz.QUIZ30), nextStory = STORY11),
 
     // Story #9
-    STORY9(id = 9, image = R.drawable.story_9, quiz = listOf(Quiz.QUIZ25, Quiz.QUIZ26, Quiz.QUIZ27), nextStory = STORY10),
+    STORY9(id = 9, quiz = listOf(Quiz.QUIZ25, Quiz.QUIZ26, Quiz.QUIZ27), nextStory = STORY10),
 
     // Story #8
-    STORY8(id = 8, image = R.drawable.story_8, quiz = listOf(Quiz.QUIZ22, Quiz.QUIZ23, Quiz.QUIZ24), nextStory = STORY9),
+    STORY8(id = 8, quiz = listOf(Quiz.QUIZ22, Quiz.QUIZ23, Quiz.QUIZ24), nextStory = STORY9),
 
     // Story #7
-    STORY7(id = 7, image = R.drawable.story_7, quiz = listOf(Quiz.QUIZ19, Quiz.QUIZ20, Quiz.QUIZ21), nextStory = STORY8),
+    STORY7(id = 7, quiz = listOf(Quiz.QUIZ19, Quiz.QUIZ20, Quiz.QUIZ21), nextStory = STORY8),
 
     // Story #6
-    STORY6(id = 6, image = R.drawable.story_6, quiz = listOf(Quiz.QUIZ16, Quiz.QUIZ17, Quiz.QUIZ18), nextStory = STORY7),
+    STORY6(id = 6, quiz = listOf(Quiz.QUIZ16, Quiz.QUIZ17, Quiz.QUIZ18), nextStory = STORY7),
 
     // Story #5
-    STORY5(id = 5, image = R.drawable.story_5, quiz = listOf(Quiz.QUIZ13, Quiz.QUIZ14, Quiz.QUIZ15), nextStory = STORY6),
+    STORY5(id = 5, quiz = listOf(Quiz.QUIZ13, Quiz.QUIZ14, Quiz.QUIZ15), nextStory = STORY6),
 
     // Story #4
-    STORY4(id = 4, image = R.drawable.story_4, quiz = listOf(Quiz.QUIZ10, Quiz.QUIZ11, Quiz.QUIZ12), nextStory = STORY5),
+    STORY4(id = 4, quiz = listOf(Quiz.QUIZ10, Quiz.QUIZ11, Quiz.QUIZ12), nextStory = STORY5),
 
     // Story #3
-    STORY3(id = 3, image = R.drawable.story_3, quiz = listOf(Quiz.QUIZ7, Quiz.QUIZ8, Quiz.QUIZ9), nextStory = STORY4),
+    STORY3(id = 3, quiz = listOf(Quiz.QUIZ7, Quiz.QUIZ8, Quiz.QUIZ9), nextStory = STORY4),
 
     // Story #2
-    STORY2(id = 2, image = R.drawable.story_2, quiz = listOf(Quiz.QUIZ4, Quiz.QUIZ5, Quiz.QUIZ6), nextStory = STORY3),
+    STORY2(id = 2, quiz = listOf(Quiz.QUIZ4, Quiz.QUIZ5, Quiz.QUIZ6), nextStory = STORY3),
 
     // Story #1
-    STORY1(id = 1, image = R.drawable.story_1, quiz = listOf(Quiz.QUIZ1, Quiz.QUIZ2, Quiz.QUIZ3), nextStory = STORY2)
+    STORY1(id = 1, quiz = listOf(Quiz.QUIZ1, Quiz.QUIZ2, Quiz.QUIZ3), nextStory = STORY2)
 }
 
 

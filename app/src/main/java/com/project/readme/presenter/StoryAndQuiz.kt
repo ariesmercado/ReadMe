@@ -190,12 +190,14 @@ fun StoryAndQuizContent(
                 .background(Color(0xFFF7F7F8)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = currentStory.image),
-                modifier = Modifier.fillMaxWidth(),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth
-            )
+            currentStory.image?.let {
+                Image(
+                    painter = painterResource(id = it),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth
+                )
+            }
 
             Spacer(Modifier.height(20.dp))
 
