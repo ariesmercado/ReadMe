@@ -73,6 +73,13 @@
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
+
+        <activity
+            android:name=".presenter.WebviewActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/Theme.ReadMe" />
     </application>
 
 </manifest>

@@ -86,7 +86,6 @@ fun NameAgeGradeScreen(
         R.drawable.boy,
         R.drawable.girl,
     )
-    val view = LocalView.current
 
     Column(
         modifier = Modifier
@@ -111,7 +110,7 @@ fun NameAgeGradeScreen(
                     modifier = Modifier
                         .wrapContentSize()
                         .clip(CircleShape)
-                        .border(4.dp, if(isSelected)Color(android.graphics.Color.parseColor("#38A169")) else Color.White, CircleShape)
+                        .border(4.dp, if(isSelected) Color(android.graphics.Color.parseColor("#38A169")) else Color.White, CircleShape)
                         .background(MaterialTheme.colorScheme.surface)
                         .clickable {
                             selectedAvatar = avatar
@@ -132,7 +131,7 @@ fun NameAgeGradeScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                placeholder = { Text("Name") },
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 isError = errorList.any { it == "name" },

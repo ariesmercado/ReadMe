@@ -173,7 +173,7 @@ object LessonUtil {
 
 
     // Helper function to read text from asset
-    private fun readTextFromAsset(context: Context, assetPath: String): String {
+    fun readTextFromAsset(context: Context, assetPath: String): String {
         return try {
             val inputStream = context.assets.open(assetPath)
             inputStream.bufferedReader().use { it.readText() }

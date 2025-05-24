@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
+import timber.log.Timber
 
 interface BookRepository {
     val user: StateFlow<UserProfile?>
@@ -31,7 +32,7 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
             saveValue("UserName", name)
             saveValue("UserProfile", profilePic)
         }
-
+        Timber.d("updateUserProfile -> $profilePic")
         user.emit(UserProfile(name,profilePic))
     }
 
@@ -40,7 +41,7 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
     override suspend fun getUserProfile(): UserProfile? {
         val userName = dataStorageHelper.getValue<String>("UserName") ?: return null
         val profile = dataStorageHelper.getValue<Int>("UserProfile") ?: return null
-
+        Timber.d("getUserProfile -> $profile")
         user.emit(UserProfile(userName,profile))
         return UserProfile(userName, profile)
     }
@@ -72,7 +73,5 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
 @Parcelize
 data class UserProfile(
     @SerializedName("name") val name: String? = null,
-    @SerializedName("age") val age: Int? = null,
-    @SerializedName("grade") val grade: Int? = null,
     @SerializedName("profilePic") val profilePic: Int? = null
 ): Parcelable

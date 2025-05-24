@@ -34,18 +34,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,7 +50,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -62,15 +59,11 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -79,6 +72,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -92,6 +86,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.project.readme.R
+import com.project.readme.common.MainColorUtils
 import com.project.readme.common.Resource
 import com.project.readme.data.Book
 import com.project.readme.data.UserProfile
@@ -139,18 +134,20 @@ class BookAppActivity : ComponentActivity() {
                         ) {
                             composable("home") {
                                 if(profile is Resource.Success) {
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::navigateToCover, ::onNextPage, page)
+                                    Timber.d("profile.data -> ${profile.data}")
+                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::navigateToCover, ::onNextPage, page, ::navigateToLesson)
                                 }
                             }
-                            composable("favorites") {
-                                if (favorites.isNotEmpty()) {
+                            composable("results") {
+                                if (false) { // this is the orig value -> favorites.isNotEmpty()
                                     FavoritesBooks(favorites, ::navigateToMainScreen)
                                 } else {
                                     FavoritesScreen()
                                 }
                             }
                             composable("about") {
-                                AboutPage()
+                                Toast.makeText(LocalContext.current, "This Page is currently unavailable", Toast.LENGTH_SHORT).show()
+                                //AboutPage()
                             }
 
                             composable("profile") {
@@ -159,7 +156,7 @@ class BookAppActivity : ComponentActivity() {
                         }
 
                         Column (modifier = Modifier.align(Alignment.BottomCenter)) {
-                            CustomBottomNavigationBar(navController,wic)
+                            CustomBottomNavigationBar(navController)
                         }
                 }
             }
@@ -183,6 +180,11 @@ class BookAppActivity : ComponentActivity() {
         startActivity(intent)
     }
 
+    private fun navigateToLesson() {
+        val intent = Intent(this, WebviewActivity::class.java)
+        startActivity(intent)
+    }
+
     private fun updateProfile(name: String,selectedAvatar: Int) {
         viewModel.updateUserProfile(name, selectedAvatar)
         Toast.makeText(this, "Your profile has been successfully updated!", Toast.LENGTH_SHORT).show()
@@ -190,10 +192,10 @@ class BookAppActivity : ComponentActivity() {
 }
 
 @Composable
-fun CustomBottomNavigationBar(navController: NavController, wic: WindowInsetsControllerCompat) {
+fun CustomBottomNavigationBar(navController: NavController) {
     val items = listOf(
         BottomNavItem("Home", Icons.Default.Home, "home"),
-        BottomNavItem("Favorites", Icons.Default.Favorite, "favorites"),
+        BottomNavItem("Results", Icons.AutoMirrored.Filled.List, "results"),
         BottomNavItem("About", Icons.Default.Info, "about"),
         BottomNavItem("Profile", Icons.Default.Person, "profile")
     )
@@ -202,7 +204,7 @@ fun CustomBottomNavigationBar(navController: NavController, wic: WindowInsetsCon
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(android.graphics.Color.parseColor("#66cbad")))
+            .background(MainColorUtils.primary)
             .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -265,7 +267,7 @@ fun FavoritesScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("No Favorites Books Found", style = MaterialTheme.typography.titleMedium)
+        Text("No Result Found", style = MaterialTheme.typography.titleMedium)
     }
 }
 
@@ -289,12 +291,13 @@ fun MediumTopAppBarExample(
     onComprehensionCover: (String) -> Unit,
     onNextPage: () -> Unit,
     page: Int,
+    onLessonClick: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     // Detect scroll state to conditionally apply rounded corners
     val scrollState = scrollBehavior.state
-    val isCollapsed = scrollState.collapsedFraction > 0.5f // Adjust this value based on how much the header should collapse
+    val isCollapsed = true // Adjust this value based on how much the header should collapse
 
     // Remember the state of the LazyColumn
     val listState = rememberLazyListState()
@@ -302,39 +305,19 @@ fun MediumTopAppBarExample(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Background image
-        Image(
-            painter = painterResource(id = R.drawable.readme_bg), // Replace with your image resource
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter),
-            contentScale = ContentScale.Crop
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.book_for_bg), // Replace with your image resource
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .alpha(.8f),
-            contentScale = ContentScale.FillWidth
-        )
-
         // Scaffold for content with top bar
         Scaffold(
             modifier = Modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize(),
             topBar = {
-                MediumTopAppBar(
+                TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (isCollapsed) Color.White else Color.Transparent, // Make the top bar transparent
-                        scrolledContainerColor = if (isCollapsed) Color.White else Color.Transparent,
-                        titleContentColor = Color(android.graphics.Color.parseColor("#66cbad"))
+                        containerColor = MainColorUtils.primary,
+                        scrolledContainerColor = MainColorUtils.primary,
+                        titleContentColor = Color.White
                     ),
                     title = {
-
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
@@ -357,18 +340,17 @@ fun MediumTopAppBarExample(
                             Spacer(Modifier.width(8.dp))
 
                             Text(
-                                "Hello ${user?.name.orEmpty()}!",
+                                "Hi ${user?.name.orEmpty()}!",
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = if (!isCollapsed) Color.White else Color(android.graphics.Color.parseColor("#66cbad"))
+                                color = Color.White
                             )
                         }
 
                     },
                     scrollBehavior = scrollBehavior
                 )
-            },
-            containerColor = if (isCollapsed) Color.White else Color.Transparent,
+            }
         ) { innerPadding ->
 
             Card(
@@ -388,68 +370,91 @@ fun MediumTopAppBarExample(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    var searchText by remember { mutableStateOf("") }
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-
-                        // Example content (popular books, etc.)
-                        // Search Bar
-                        stickyHeader {
-                            Column(modifier = Modifier.background(color = Color.White)) {
-                                Spacer(modifier = Modifier.height(if (isCollapsed) 0.dp else 20.dp))
-                                SearchBar(searchText) {
-                                    searchText = it
-                                }
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
+                    LazyColumn (Modifier.fillMaxSize()) {
+                        item {
+                            SubjectButton(R.drawable.plus,"Addition", onLessonClick)
                         }
-
-                        if (searchText.isBlank()) {
-                            item {
-                                AMod(onComprehensionCover, {})
-                            }
-
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp)
-                                ) {
-                                    Text(
-                                        text = "Recommended Books",
-                                        fontSize = 22.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
+                        item {
+                            SubjectButton(R.drawable.minus, "Subtraction", onLessonClick)
                         }
-
+                        item {
+                            SubjectButton(
+                                R.drawable.multiplication,
+                                "Multiplication",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(R.drawable.divide, "Division", onLessonClick)
+                        }
+                        item {
+                            SubjectButton(R.drawable.pie_chart, "What is Fractions?", onLessonClick)
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.pie_chart,
+                                "Addition of Fractions",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.pie_chart,
+                                "Subtraction of Fractions",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.pie_chart,
+                                "Multiplication of Fractions",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.pie_chart,
+                                "Divition of Fractions",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(R.drawable.decimal, "What is Decimals?", onLessonClick)
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.decimal,
+                                "Addition of Decimals?",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.decimal,
+                                "Subtraction of Decimals?",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.decimal,
+                                "Mutliplication of Decimals?",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(
+                                R.drawable.decimal,
+                                "Division of Decimals?",
+                                onLessonClick
+                            )
+                        }
+                        item {
+                            SubjectButton(R.drawable.quiz, "Take final Quiz", onLessonClick)
+                        }
 
                         item {
-                            val filteredBooks = if (searchText.isNotBlank()) books.filter { it.name.lowercase().contains(searchText.lowercase()) }.toMutableList() else books.toMutableList()
-                            if ((filteredBooks.size % 2) != 0) {
-                                filteredBooks.add(Book("++", emptyList()))
-                            }
-                            if (filteredBooks.isNotEmpty()) {
-                                ListBooks(filteredBooks, onItemClicked)
-                            } else {
-                                CircularProgressBar()
-                            }
-                        }
-
-                        item {
-                            if (books.size != 16 && books.isNotEmpty()) {
-                                Timber.d("CircularProgressBarPaging")
-                                Spacer(modifier = Modifier.height(16.dp))
-                                CircularProgressBarPaging()
-                                Spacer(modifier = Modifier.height(100.dp))
-                                onNextPage.invoke()
-                            } else {
-                                Spacer(modifier = Modifier.height(100.dp))
-                            }
-
+                            Spacer(Modifier.height(150.dp))
                         }
                     }
                 }
@@ -459,63 +464,73 @@ fun MediumTopAppBarExample(
 }
 
 @Composable
-fun AMod(onTakeTestClick: (String) -> Unit, onShareResultClick: () -> Unit) {
-    Box(
+fun SubjectButton(icon: Int, title: String, onLessonClick: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
         modifier = Modifier
+            .clickable {
+                onLessonClick.invoke()
+            }
+            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF4A90E2), Color(0xFF007AFF))
-                )
-            )
     ) {
-        Column (Modifier.fillMaxWidth().padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Boost Your Knowledge Today!",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.take_exam),
-                    contentDescription = "Exam Image",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+                    textAlign = TextAlign.Center,
                 )
+
+                OutlinedCard (
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                ) {
+                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Taken",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                            modifier = Modifier.padding(start = 6.dp, top = 4.dp, bottom = 4.dp)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "check",
+                            tint = Color.Green,
+                            modifier = Modifier.size(24.dp).padding(top = 4.dp, bottom = 4.dp, end = 4.dp)
+                        )
+                    }
+
+
+
+                }
+
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick =  { onTakeTestClick.invoke("easy") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Easy", color = Color(0xFF007AFF), style = MaterialTheme.typography.titleMedium)
-            }
-            Button(
-                onClick = { onTakeTestClick.invoke("medium") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Medium", color = Color(0xFF007AFF), style = MaterialTheme.typography.titleMedium)
-            }
-            Button(
-                onClick = { onTakeTestClick.invoke("hard") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Hard", color = Color(0xFF007AFF), style = MaterialTheme.typography.titleMedium)
-            }
+
+            CuteImage(
+                icon = painterResource(id = icon),
+                modifier = Modifier.padding(end = 16.dp).size(36.dp)
+            )
         }
     }
+}
+
+@Composable
+fun CuteImage(icon: Painter, modifier: Modifier = Modifier) {
+    Image(painter = icon, contentDescription = null, modifier = modifier)
+}
+
+@Composable
+fun SubjectButtonPreview() {
+    SubjectButton(R.drawable.plus, "Addition", {})
 }
 
 @ExperimentalMaterial3Api
@@ -590,93 +605,6 @@ fun FavoritesBooks(
                             Spacer(modifier = Modifier.height(100.dp))
                         }
                     }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SearchBar(searchText: String, onSearch: (String) -> Unit) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(
-                Color(android.graphics.Color.parseColor("#F4F4F4")),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(8.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Default.Search, contentDescription = "Search Icon")
-            Spacer(modifier = Modifier.width(8.dp))
-
-
-                BasicTextField(
-                    value = searchText,
-                    onValueChange = onSearch,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.DarkGray),
-                    singleLine = true,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    if (searchText.isBlank()) {
-                        Text(
-                            text = "Search book",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
-                            modifier = Modifier.weight(1f)
-                        )
-                    } else {
-                        Text(
-                            text = searchText,
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.DarkGray),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-            // If you'd prefer a TextField with a border
-            /*TextField(
-                value = searchText,
-                onValueChange = { searchText = it },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
-                singleLine = true,
-                modifier = Modifier.weight(1f),
-                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent)
-            )*/
-        }
-    }
-}
-
-
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun ListBooks(books: List<Book>, onItemClicked: (bookTitle: String) -> Unit) {
-    val view = LocalView.current
-    FlowRow(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Absolute.Center, // Align items to the start of the row
-        verticalArrangement = Arrangement.spacedBy(16.dp), // Space between rows
-    ) {
-        books.forEach { coverResId ->
-            Box(
-                modifier = Modifier
-                    .padding(8.dp) // Inner padding for spacing
-                    .fillMaxWidth(0.45f) // Each item takes up 45% of the parent's width
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable {
-                        view.playSoundEffect(SoundEffectConstants.CLICK)
-                        onItemClicked(coverResId.name)
-                    }
-            ) {
-                LessonUtil.getCover(coverResId.name)?.let {
-                    CompressedAsyncImage(it)
                 }
             }
         }
