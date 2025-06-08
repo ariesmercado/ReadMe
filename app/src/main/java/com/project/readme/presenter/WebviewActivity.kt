@@ -19,9 +19,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @AndroidEntryPoint
 class WebviewActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val link = "file:///android_asset/Lessons/Addition/Addition.html"
+        val level = intent.getStringExtra("level")
+
+        val link = "file:///android_asset/Lessons/${level}/${level}.html"
         setContent {
             ReadMeTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -32,7 +36,7 @@ class WebviewActivity : ComponentActivity() {
     }
 
     private fun navigateToStoryAndQuizzes() {
-        val level = "addition"
+        val level = "Addition"
         val intent = Intent(this, StoryAndQuiz::class.java)
         intent.putExtra("level", level)
         startActivity(intent)
@@ -89,7 +93,6 @@ fun AssetWebView(
                 settings.apply {
                     javaScriptEnabled = true
                     domStorageEnabled = true
-                    cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
                     loadWithOverviewMode = true
                     useWideViewPort = false // prevents wide zoom layout
                 }
@@ -117,4 +120,23 @@ fun AssetWebView(
         },
         modifier = modifier
     )
+}
+
+enum class MathSubject(val displayName: String) {
+    ADDITION("Addition"),
+    SUBTRACTION("Subtraction"),
+    MULTIPLICATION("multiplication"),
+    DIVISION("division"),
+    ADDING_FRACTIONS("Adding Fractions"),
+    SUBTRACTING_FRACTIONS("Subtracting Fractions"),
+    MULTIPLYING_FRACTIONS("Multiplying Fractions"),
+    DIVIDING_FRACTIONS("Dividing Fractions"),
+    ADD_SUBTRACT_DECIMALS("Adding and Subtracting Decimals"),
+    MULTIPLYING_DECIMALS("Multiplying Decimals"),
+    DIVIDING_DECIMALS("Dividing Decimals"),
+    MIXED_QUIZ_MEDIUM("Mixed Quiz (Medium)");
+
+    override fun toString(): String {
+        return displayName
+    }
 }

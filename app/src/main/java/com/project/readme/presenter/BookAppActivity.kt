@@ -36,7 +36,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
@@ -88,9 +87,7 @@ import coil.request.ImageRequest
 import com.project.readme.R
 import com.project.readme.common.MainColorUtils
 import com.project.readme.common.Resource
-import com.project.readme.data.Book
 import com.project.readme.data.UserProfile
-import com.project.readme.data.genarator.LessonUtil
 import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -155,8 +152,9 @@ class BookAppActivity : ComponentActivity() {
 
     }
 
-    private fun navigateToLesson() {
+    private fun navigateToLesson(level: String) {
         val intent = Intent(this, WebviewActivity::class.java)
+        intent.putExtra("level", level)
         startActivity(intent)
     }
 
@@ -170,7 +168,6 @@ class BookAppActivity : ComponentActivity() {
 fun CustomBottomNavigationBar(navController: NavController) {
     val items = listOf(
         BottomNavItem("Home", Icons.Default.Home, "home"),
-        BottomNavItem("Results", Icons.AutoMirrored.Filled.List, "results"),
         BottomNavItem("About", Icons.Default.Info, "about"),
         BottomNavItem("Profile", Icons.Default.Person, "profile")
     )
@@ -261,7 +258,7 @@ fun ProfileScreen(kFunction4: (String, Int) -> Unit, profile: UserProfile?) {
 @Composable
 fun MediumTopAppBarExample(
     user: UserProfile?,
-    onLessonClick: () -> Unit,
+    onLessonClick: (String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -340,85 +337,80 @@ fun MediumTopAppBarExample(
                 ) {
                     LazyColumn (Modifier.fillMaxSize()) {
                         item {
-                            SubjectButton(R.drawable.plus,"Addition", onLessonClick)
+                            SubjectButton(R.drawable.plus,"Addition", onLessonClick, "Addition")
                         }
                         item {
-                            SubjectButton(R.drawable.minus, "Subtraction", onLessonClick)
+                            SubjectButton(R.drawable.minus, "Subtraction", onLessonClick, "Subtraction")
                         }
                         item {
                             SubjectButton(
                                 R.drawable.multiplication,
                                 "Multiplication",
-                                onLessonClick
+                                onLessonClick,
+                                "Multiplication",
                             )
                         }
                         item {
-                            SubjectButton(R.drawable.divide, "Division", onLessonClick)
-                        }
-                        item {
-                            SubjectButton(R.drawable.pie_chart, "What is Fractions?", onLessonClick)
+                            SubjectButton(R.drawable.divide, "Division", onLessonClick, "Diviving")
                         }
                         item {
                             SubjectButton(
                                 R.drawable.pie_chart,
-                                "Addition of Fractions",
-                                onLessonClick
-                            )
-                        }
-                        item {
-                            SubjectButton(
-                                R.drawable.pie_chart,
-                                "Subtraction of Fractions",
-                                onLessonClick
+                                "Adding Fractions",
+                                onLessonClick,
+                                "Addingf"
                             )
                         }
                         item {
                             SubjectButton(
                                 R.drawable.pie_chart,
-                                "Multiplication of Fractions",
-                                onLessonClick
+                                "Subtracting Fractions",
+                                onLessonClick,
+                                "Subtractingf"
                             )
                         }
                         item {
                             SubjectButton(
                                 R.drawable.pie_chart,
-                                "Divition of Fractions",
-                                onLessonClick
-                            )
-                        }
-                        item {
-                            SubjectButton(R.drawable.decimal, "What is Decimals?", onLessonClick)
-                        }
-                        item {
-                            SubjectButton(
-                                R.drawable.decimal,
-                                "Addition of Decimals?",
-                                onLessonClick
+                                "Multiplying Fractions",
+                                onLessonClick,
+                                "Multiplyingf",
                             )
                         }
                         item {
                             SubjectButton(
-                                R.drawable.decimal,
-                                "Subtraction of Decimals?",
-                                onLessonClick
+                                R.drawable.pie_chart,
+                                "Dividing Fractions",
+                                onLessonClick,
+                                "Dividingf",
                             )
                         }
                         item {
                             SubjectButton(
                                 R.drawable.decimal,
-                                "Mutliplication of Decimals?",
-                                onLessonClick
+                                "Adding and Subtracting Decimals",
+                                onLessonClick,
+                                "Addsubd"
                             )
                         }
                         item {
                             SubjectButton(
                                 R.drawable.decimal,
-                                "Division of Decimals?",
-                                onLessonClick
+                                "Multiplying Decimals",
+                                onLessonClick,
+                                "Multiplyingd",
                             )
                         }
                         item {
-                            SubjectButton(R.drawable.quiz, "Take final Quiz", onLessonClick)
+                            SubjectButton(
+                                R.drawable.decimal,
+                                "Dividing Decimals",
+                                onLessonClick,
+                                "Dived"
+                            )
+                        }
+                        item {
+                            SubjectButton(R.drawable.quiz, "Take final Quiz", onLessonClick, "dsdas")
                         }
 
                         item {
@@ -432,13 +424,13 @@ fun MediumTopAppBarExample(
 }
 
 @Composable
-fun SubjectButton(icon: Int, title: String, onLessonClick: () -> Unit) {
+fun SubjectButton(icon: Int, title: String, onLessonClick: (String) -> Unit, level: String) {
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
         modifier = Modifier
             .clickable {
-                onLessonClick.invoke()
+                onLessonClick.invoke(level)
             }
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .fillMaxWidth()
@@ -498,7 +490,7 @@ fun CuteImage(icon: Painter, modifier: Modifier = Modifier) {
 
 @Composable
 fun SubjectButtonPreview() {
-    SubjectButton(R.drawable.plus, "Addition", {})
+    SubjectButton(R.drawable.plus, "Addition", {}, "")
 }
 
 @ExperimentalMaterial3Api

@@ -212,8 +212,8 @@ fun StoryAndQuizContent(
                     modifier = Modifier.padding(16.dp),
                 ) {
                     val questionNumber = when (level) {
-                        "addition" -> quiz.id
-                        "subtraction" -> quiz.id - 21
+                        "Addition" -> quiz.id
+                        "Subtraction" -> quiz.id - 21
                         "multiplication" -> quiz.id - 45
                         else -> quiz.id
                     }
@@ -381,8 +381,8 @@ fun StoryAndQuizContent(
             Spacer(Modifier.height(16.dp))
 
             val lastNumber = when (level) {
-                "addition" -> 9
-                "subtraction" -> 45
+                "Addition" -> 9
+                "Subtraction" -> 45
                 "multiplication" -> 69
                 else -> 21
             }

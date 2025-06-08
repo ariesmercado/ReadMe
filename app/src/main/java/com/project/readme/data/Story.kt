@@ -138,7 +138,7 @@ enum class Quiz(
     ),
     QUIZ6(
         id = 6,
-        question = "Which property is shown by the addition sentence 11 + 0 \u200E = 11",
+        question = "Which property is shown by the Addition sentence 11 + 0 \u200E = 11",
         choices = listOf("Associative property", "Identity Property", "Additive Property", "Distributive Property"),
         2
     ),
