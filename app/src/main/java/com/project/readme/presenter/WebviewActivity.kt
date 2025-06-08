@@ -1,6 +1,6 @@
 package com.project.readme.presenter
 
-import android.os.Build
+import android.content.Intent
 import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import android.os.Bundle
@@ -10,14 +10,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import timber.log.Timber
 
 @AndroidEntryPoint
 class WebviewActivity : ComponentActivity() {
@@ -27,16 +25,24 @@ class WebviewActivity : ComponentActivity() {
         setContent {
             ReadMeTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    LessonWithQuizScreen(link)
+                    LessonWithQuizScreen(link, ::navigateToStoryAndQuizzes)
                 }
             }
         }
+    }
+
+    private fun navigateToStoryAndQuizzes() {
+        val level = "addition"
+        val intent = Intent(this, StoryAndQuiz::class.java)
+        intent.putExtra("level", level)
+        startActivity(intent)
+        finish()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LessonWithQuizScreen(link: String) {
+fun LessonWithQuizScreen(link: String, onQuizClicked: () -> Unit) {
     // Visibility state for button
     val showButton = remember { mutableStateOf(false) }
 
@@ -44,7 +50,7 @@ fun LessonWithQuizScreen(link: String) {
         bottomBar = {
             if (showButton.value) {
                 Button(
-                    onClick = { /* Navigate to quiz or show dialog */ },
+                    onClick = { onQuizClicked.invoke() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)

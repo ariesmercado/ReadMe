@@ -77,13 +77,21 @@ enum class Story(
     STORY4(id = 4, quiz = listOf(Quiz.QUIZ10, Quiz.QUIZ11, Quiz.QUIZ12), nextStory = STORY5),
 
     // Story #3
-    STORY3(id = 3, quiz = listOf(Quiz.QUIZ7, Quiz.QUIZ8, Quiz.QUIZ9), nextStory = STORY4),
+    STORY3(id = 3, quiz = listOf(Quiz.QUIZ5, Quiz.QUIZ9), nextStory = STORY4),
 
     // Story #2
-    STORY2(id = 2, quiz = listOf(Quiz.QUIZ4, Quiz.QUIZ5, Quiz.QUIZ6), nextStory = STORY3),
+    STORY2(id = 2, quiz = listOf(
+        Quiz.QUIZ2,
+        Quiz.QUIZ3,
+        Quiz.QUIZ4,
+        Quiz.QUIZ5,
+        Quiz.QUIZ6,
+        Quiz.QUIZ7,
+        Quiz.QUIZ8,
+        Quiz.QUIZ9), nextStory = STORY3),
 
     // Story #1
-    STORY1(id = 1, quiz = listOf(Quiz.QUIZ1, Quiz.QUIZ2, Quiz.QUIZ3), nextStory = STORY2)
+    STORY1(id = 1, image = R.drawable.addition_question1, quiz = listOf(Quiz.QUIZ1), nextStory = STORY2)
 }
 
 
@@ -97,61 +105,61 @@ enum class Quiz(
     // Story #1
     QUIZ1(
         id = 1,
-        question = "I have ________.",
-        choices = listOf("a friend", "a cousin", "a nephew"),
+        question = "Which of the following equations represents the total number of circles in the figure above?",
+        choices = listOf("6 + 7  = 13", "8 + 6 \u200E = 14", "8 + 7 \u200E = 15", "7 + 5 \u200E = 12"),
         1
     ),
     QUIZ2(
         id = 2,
-        question = "His name is ________.",
-        choices = listOf("Rick", "Greg", "Bill"),
+        question = "What is the sum of 700 and 136?",
+        choices = listOf("636", "664", "736", "836"),
         2
     ),
     QUIZ3(
         id = 3,
-        question = "He is holding ________.",
-        choices = listOf("a flag", "a banner", "a bag"),
+        question = "Find the value of 4 hundreds + 26 tens?",
+        choices = listOf("426", "606", "660", "4026"),
         1
     ),
 
     // Story #2
     QUIZ4(
         id = 4,
-        question = "I see _______ in the tree.",
+        question = "Which of the following is the sum of the smallest and the greatest two-digit numbers?",
 
-        choices = listOf("an owl", "a horse", "a deer"),
+        choices = listOf("19", "99", "100","109"),
         1
     ),
     QUIZ5(
         id = 5,
-        question = "The owl is _______.",
-        choices = listOf("red", "blue", "brown"),
+        question = "1385 girls and 432 boys took part in an art competition. Find the total number of participants.\n",
+        choices = listOf("935", "1817", "2165", "None of these"),
         3
     ),
     QUIZ6(
         id = 6,
-        question = "The owl has ______.",
-        choices = listOf("big feet", "big eyes", "nice feathers"),
+        question = "Which property is shown by the addition sentence 11 + 0 \u200E = 11",
+        choices = listOf("Associative property", "Identity Property", "Additive Property", "Distributive Property"),
         2
     ),
 
     // Story #3
     QUIZ7(
         id = 7,
-        question = "Today is ______.",
-        choices = listOf("Thanksgiving", "Christmas", "Mother’s day"),
+        question = "Find 5 + 7 + 9",
+        choices = listOf("20", "12", "14", "21"),
         3
     ),
     QUIZ8(
         id = 8,
-        question = "I have ________.",
-        choices = listOf("flowers", "a flower", "dolls"),
+        question = "A bouquet has 36 red roses and 18 white roses. How many roses does the bouquet have in all?",
+        choices = listOf("54", "72", "36", "108"),
         1
     ),
     QUIZ9(
         id = 9,
-        question = "My flowers are for ________.",
-        choices = listOf("my friend", "my dad", "my mom"),
+        question = "Bus A has 45 passengers, Bus B has 56 passengers and Bus C has 32 passengers. How many passengers are on Bus A and Bus C?",
+        choices = listOf("101", "88", "77", "133"),
         3
     ),
     // Story #4

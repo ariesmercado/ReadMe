@@ -34,6 +34,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -57,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.project.readme.R
+import com.project.readme.common.MainColorUtils
 import com.project.readme.data.Story
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -75,17 +77,20 @@ class StoryAndQuiz: ComponentActivity() {
             val answer by viewModel.answer.collectAsState()
             val level = viewModel.level // use this level to change the rules
 
-            StoryAndQuizContent(
-                currentStory,
-                currentQuiz,
-                answerStatus,
-                answer,
-                ::onNextQuestion,
-                ::onSubmit,
-                ::onChooseAnswer,
-                ::onSeeResult,
-                level
-            )
+            Surface(color = MainColorUtils.primary) {
+                StoryAndQuizContent(
+                    currentStory,
+                    currentQuiz,
+                    answerStatus,
+                    answer,
+                    ::onNextQuestion,
+                    ::onSubmit,
+                    ::onChooseAnswer,
+                    ::onSeeResult,
+                    level
+                )
+            }
+
 
             var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
 
@@ -178,26 +183,19 @@ fun StoryAndQuizContent(
     val isHard = level?.lowercase() == "hard"
     val quiz = currentStory.quiz[currentQuiz]
 
-    val emojis = listOf("🥳", "😢")
     val floatingEmojis = remember { mutableStateListOf<AnimatedEmoji>() }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxWidth()
+        .background(color = MainColorUtils.primary)) {
 
+        Box (Modifier.fillMaxSize().background(color = MainColorUtils.primary))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .background(Color(0xFFF7F7F8)),
+                .background(MainColorUtils.primary),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            currentStory.image?.let {
-                Image(
-                    painter = painterResource(id = it),
-                    modifier = Modifier.fillMaxWidth(),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillWidth
-                )
-            }
 
             Spacer(Modifier.height(20.dp))
 
@@ -214,9 +212,9 @@ fun StoryAndQuizContent(
                     modifier = Modifier.padding(16.dp),
                 ) {
                     val questionNumber = when (level) {
-                        "easy" -> quiz.id
-                        "medium" -> quiz.id - 21
-                        "hard" -> quiz.id - 45
+                        "addition" -> quiz.id
+                        "subtraction" -> quiz.id - 21
+                        "multiplication" -> quiz.id - 45
                         else -> quiz.id
                     }
                     Text(
@@ -231,6 +229,15 @@ fun StoryAndQuizContent(
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 16.dp)
                     )
+
+                    currentStory.image?.let {
+                        Image(
+                            painter = painterResource(id = it),
+                            modifier = Modifier.fillMaxWidth(),
+                            contentDescription = null,
+                            contentScale = ContentScale.FillWidth
+                        )
+                    }
                 }
             }
 
@@ -249,7 +256,7 @@ fun StoryAndQuizContent(
                 Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = fillInAnswer.orEmpty(),
+                    value = fillInAnswer,
                     onValueChange = {
                         fillInAnswer = it
                     },
@@ -292,6 +299,7 @@ fun StoryAndQuizContent(
                     text = "Choices:",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
@@ -373,9 +381,9 @@ fun StoryAndQuizContent(
             Spacer(Modifier.height(16.dp))
 
             val lastNumber = when (level) {
-                "easy" -> 21
-                "medium" -> 45
-                "hard" -> 69
+                "addition" -> 9
+                "subtraction" -> 45
+                "multiplication" -> 69
                 else -> 21
             }
 
@@ -398,7 +406,7 @@ fun StoryAndQuizContent(
                         }
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49AFDC)),
+                colors = ButtonDefaults.buttonColors(containerColor = if (buttonText != "Submit Answer") Color(0xFF49AFDC) else MainColorUtils.yellowButton),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(16.dp),
@@ -406,6 +414,7 @@ fun StoryAndQuizContent(
             ) {
                 Text(
                     text = buttonText,
+                    fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
                 )
             }
@@ -447,7 +456,7 @@ fun FloatingEmoji(emoji: String, onAnimationEnd: () -> Unit) {
         }
     }
 
-    Box (Modifier.fillMaxSize().padding(24.dp),
+    Box (Modifier.fillMaxSize().padding(24.dp).background(color = Color.Transparent),
         ) {
         Text(
             text = emoji,
@@ -489,7 +498,7 @@ fun ExamCancellationDialog(onCancel: () -> Unit, onDismiss: () -> Unit) {
 @Preview
 fun StoryAndQuizContentPreview() {
     StoryAndQuizContent(
-        Story.STORY8,
+        Story.STORY1,
         0,
         AnswerStatus.Correct,
         1,

@@ -21,9 +21,9 @@ class StoryAndQuizViewModel @Inject constructor(
 
     private val _currentStory = MutableStateFlow(
         when (level) {
-            "easy" -> Story.STORY1
-            "medium" -> Story.STORY8
-            "hard" -> Story.STORY16
+            "addition" -> Story.STORY1
+            "subtraction" -> Story.STORY8
+            "multiplication" -> Story.STORY16
             else -> Story.STORY1 // fallback/default
         }
     )
@@ -50,7 +50,8 @@ class StoryAndQuizViewModel @Inject constructor(
 
     fun onNextQuiz() {
         val quiz = currentQuiz.value
-        if (quiz == 2) {
+        val quizCount = currentStory.value.quiz.size
+        if (quiz == (quizCount - 1)) {
             onNextStory()
         }
         else {
@@ -81,17 +82,17 @@ class StoryAndQuizViewModel @Inject constructor(
             }
 
             when (level) {
-                "easy" -> {
+                "addition" -> {
                     if (cQuiz.id == 21) {
                         score.value?.let { bookRepository.updateScore(it, level) }
                     }
                 }
-                "medium" -> {
+                "subtraction" -> {
                     if (cQuiz.id == 45) {
                         score.value?.let { bookRepository.updateScore(it, level) }
                     }
                 }
-                "hard" -> {
+                "multiplication" -> {
                     if (cQuiz.id == 69) {
                         score.value?.let { bookRepository.updateScore(it, level) }
                     }
