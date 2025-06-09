@@ -79,7 +79,7 @@ fun ExamResultContent(score: Int?, profile: UserProfile?, level: String?) {
     val items = 10
     val percentage = ((score?.toDouble() ?: 0.0) / items) * 100
     val isPassed = percentage >= 75
-    val image = if (true) R.drawable.celeb else R.drawable.sadf
+    val image = if (isPassed) R.drawable.celeb else R.drawable.sadf
 
     var bitmapToSave by remember { mutableStateOf<Bitmap?>(null) }
     val viewRef = remember { mutableStateOf<View?>(null) }
