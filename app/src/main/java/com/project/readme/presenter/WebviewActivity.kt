@@ -20,11 +20,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 @AndroidEntryPoint
 class WebviewActivity : ComponentActivity() {
 
-
+    var level: String? =  null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val level = intent.getStringExtra("level")
 
+        level = intent.getStringExtra("level")
         val link = "file:///android_asset/Lessons/${level}/${level}.html"
         setContent {
             ReadMeTheme {
@@ -36,7 +36,6 @@ class WebviewActivity : ComponentActivity() {
     }
 
     private fun navigateToStoryAndQuizzes() {
-        val level = "Addition"
         val intent = Intent(this, StoryAndQuiz::class.java)
         intent.putExtra("level", level)
         startActivity(intent)

@@ -75,7 +75,7 @@ class ExamResult : ComponentActivity() {
 @Composable
 fun ExamResultContent(score: Int?, profile: UserProfile?, level: String?) {
     val context = LocalContext.current
-    val items = if (level == "easy") 21.0 else 24.0
+    val items = 3
     val percentage = ((score?.toDouble() ?: 0.0) / items) * 100
     val isPassed = percentage >= 75
     val image = if (isPassed) R.drawable.fireworks else R.drawable.failed_exam
@@ -256,6 +256,7 @@ fun ResultContent(
 
             Spacer(Modifier.height(16.dp))
 
+            
             Text(
                 text = if (isPassed) "Congrats ${profile?.name}!" else "Sorry ${profile?.name}!",
                 style = MaterialTheme.typography.displayMedium,

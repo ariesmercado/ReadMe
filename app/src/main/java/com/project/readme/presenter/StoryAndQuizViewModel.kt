@@ -21,10 +21,18 @@ class StoryAndQuizViewModel @Inject constructor(
 
     private val _currentStory = MutableStateFlow(
         when (level) {
-            "Addition" -> Story.STORY1
-            "Subtraction" -> Story.STORY8
-            "multiplication" -> Story.STORY16
-            else -> Story.STORY1 // fallback/default
+            "Addition" -> Story.ADDITIONS
+            "Subtraction" -> Story.SUBTRACTIONS
+            "Multiplication" -> Story.MULTIPLICATION
+            "Diviving" -> Story.DIVISION
+            "Addingf" -> Story.ADDITION_FRACTION
+            "Subtractingf" -> Story.SUBTRACTION_FRACTION
+            "Multiplyingf" -> Story.MULTIPLICATION_FRACTION
+            "Dividingf" -> Story.DIVISION_FRACTION
+            "Addsubd" -> Story.ADDITION_SUBTRACTION_DECIMALS
+            "Multiplyingd" -> Story.MULTIPLICATION_DECIMALS
+            "Dived" -> Story.DIVISION_DECIMALS
+            else -> Story.ADDITIONS // fallback/default
         }
     )
     val currentStory = _currentStory.asStateFlow()
@@ -40,6 +48,31 @@ class StoryAndQuizViewModel @Inject constructor(
 
     private val _score = MutableStateFlow<Int?>(0)
     val score = _score.asStateFlow()
+
+    private val _showScore = MutableStateFlow<Boolean>(false)
+    val showScore = _showScore.asStateFlow()
+
+    fun onRetake() {
+        _currentStory.value = when (level) {
+            "Addition" -> Story.ADDITIONS
+            "Subtraction" -> Story.SUBTRACTIONS
+            "Multiplication" -> Story.MULTIPLICATION
+            "Diviving" -> Story.DIVISION
+            "Addingf" -> Story.ADDITION_FRACTION
+            "Subtractingf" -> Story.SUBTRACTION_FRACTION
+            "Multiplyingf" -> Story.MULTIPLICATION_FRACTION
+            "Addsubd" -> Story.ADDITION_SUBTRACTION_DECIMALS
+            "Multiplyingd" -> Story.MULTIPLICATION_DECIMALS
+            "Dived" -> Story.DIVISION_DECIMALS
+            else -> Story.ADDITIONS // fallback/default
+        }
+
+        _currentQuiz.value = 0
+        _answerStatus.value = AnswerStatus.None
+        _answer.value = null
+        _score.value = 0
+        _showScore.value = false
+    }
 
     private fun onNextStory() {
         val nextStory = currentStory.value.nextStory
@@ -82,19 +115,13 @@ class StoryAndQuizViewModel @Inject constructor(
             }
 
             when (level) {
-                "Addition" -> {
-                    if (cQuiz.id == 21) {
-                        score.value?.let { bookRepository.updateScore(it, level) }
-                    }
+                "TakeQuiz" -> {
+                    //
                 }
-                "Subtraction" -> {
-                    if (cQuiz.id == 45) {
-                        score.value?.let { bookRepository.updateScore(it, level) }
-                    }
-                }
-                "multiplication" -> {
-                    if (cQuiz.id == 69) {
-                        score.value?.let { bookRepository.updateScore(it, level) }
+                else -> {
+                    if (cQuiz.id == 3) {
+                        _showScore.value = true
+                        score.value?.let { bookRepository.updateScore(it, level.toString()) }
                     }
                 }
             }

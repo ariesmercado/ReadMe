@@ -1,560 +1,85 @@
 package com.project.readme.data
 
 import androidx.annotation.DrawableRes
-import com.project.readme.R
 
 enum class Story(
-    var id: Int,
-    @DrawableRes var image: Int? = null,
-    var quiz: List<Quiz>,
+    val id: Int,
+    @DrawableRes val image: Int? = null,
+    val quiz: List<Quiz>,
     var nextStory: Story? = null
-)
-{
-//    // Story #25
-//    STORY25(id = 25, image = R.drawable.story_25, quiz = listOf(Quiz.QUIZ73, Quiz.QUIZ74, Quiz.QUIZ75), nextStory = STORY24),
-//
-//    // Story #24
-//    STORY24(id = 24, image = R.drawable.story_24, quiz = listOf(Quiz.QUIZ70, Quiz.QUIZ71, Quiz.QUIZ72), nextStory = STORY23),
-
-    // Story #23
-    STORY23(id = 23, quiz = listOf(Quiz.QUIZ67, Quiz.QUIZ68, Quiz.QUIZ69)),
-
-    // Story #22
-    STORY22(id = 22, quiz = listOf(Quiz.QUIZ64, Quiz.QUIZ65, Quiz.QUIZ66), nextStory = STORY23),
-
-    // Story #21
-    STORY21(id = 21, quiz = listOf(Quiz.QUIZ61, Quiz.QUIZ62, Quiz.QUIZ63), nextStory = STORY22),
-
-    // Story #20
-    STORY20(id = 20, quiz = listOf(Quiz.QUIZ58, Quiz.QUIZ59, Quiz.QUIZ60), nextStory = STORY21),
-
-    // Story #19
-    STORY19(id = 19, quiz = listOf(Quiz.QUIZ55, Quiz.QUIZ56, Quiz.QUIZ57), nextStory = STORY20),
-
-    // Story #18
-    STORY18(id = 18, quiz = listOf(Quiz.QUIZ52, Quiz.QUIZ53, Quiz.QUIZ54), nextStory = STORY19),
-
-    // Story #17
-    STORY17(id = 17, quiz = listOf(Quiz.QUIZ49, Quiz.QUIZ50, Quiz.QUIZ51), nextStory = STORY18),
-
-    // Story #16
-    STORY16(id = 16, quiz = listOf(Quiz.QUIZ46, Quiz.QUIZ47, Quiz.QUIZ48), nextStory = STORY17),
-
-    // Story #15
-    STORY15(id = 15, quiz = listOf(Quiz.QUIZ43, Quiz.QUIZ44, Quiz.QUIZ45), nextStory = STORY16),
-
-    // Story #14
-    STORY14(id = 14, quiz = listOf(Quiz.QUIZ40, Quiz.QUIZ41, Quiz.QUIZ42), nextStory = STORY15),
-
-    // Story #13
-    STORY13(id = 13, quiz = listOf(Quiz.QUIZ37, Quiz.QUIZ38, Quiz.QUIZ39), nextStory = STORY14),
-
-    // Story #12
-    STORY12(id = 12, quiz = listOf(Quiz.QUIZ34, Quiz.QUIZ35, Quiz.QUIZ36), nextStory = STORY13),
-
-    // Story #11
-    STORY11(id = 11, quiz = listOf(Quiz.QUIZ31, Quiz.QUIZ32, Quiz.QUIZ33), nextStory = STORY12),
-
-    // Story #10
-    STORY10(id = 10, quiz = listOf(Quiz.QUIZ28, Quiz.QUIZ29, Quiz.QUIZ30), nextStory = STORY11),
-
-    // Story #9
-    STORY9(id = 9, quiz = listOf(Quiz.QUIZ25, Quiz.QUIZ26, Quiz.QUIZ27), nextStory = STORY10),
-
-    // Story #8
-    STORY8(id = 8, quiz = listOf(Quiz.QUIZ22, Quiz.QUIZ23, Quiz.QUIZ24), nextStory = STORY9),
-
-    // Story #7
-    STORY7(id = 7, quiz = listOf(Quiz.QUIZ19, Quiz.QUIZ20, Quiz.QUIZ21), nextStory = STORY8),
-
-    // Story #6
-    STORY6(id = 6, quiz = listOf(Quiz.QUIZ16, Quiz.QUIZ17, Quiz.QUIZ18), nextStory = STORY7),
-
-    // Story #5
-    STORY5(id = 5, quiz = listOf(Quiz.QUIZ13, Quiz.QUIZ14, Quiz.QUIZ15), nextStory = STORY6),
-
-    // Story #4
-    STORY4(id = 4, quiz = listOf(Quiz.QUIZ10, Quiz.QUIZ11, Quiz.QUIZ12), nextStory = STORY5),
-
-    // Story #3
-    STORY3(id = 3, quiz = listOf(Quiz.QUIZ5, Quiz.QUIZ9), nextStory = STORY4),
-
-    // Story #2
-    STORY2(id = 2, quiz = listOf(
-        Quiz.QUIZ2,
-        Quiz.QUIZ3,
-        Quiz.QUIZ4,
-        Quiz.QUIZ5,
-        Quiz.QUIZ6,
-        Quiz.QUIZ7,
-        Quiz.QUIZ8,
-        Quiz.QUIZ9), nextStory = STORY3),
-
-    // Story #1
-    STORY1(id = 1, image = R.drawable.addition_question1, quiz = listOf(Quiz.QUIZ1), nextStory = STORY2)
+) {
+    ADDITIONS(1, quiz = listOf(Quiz.ADDITIONS_QUIZ1, Quiz.ADDITIONS_QUIZ2, Quiz.ADDITIONS_QUIZ3)),
+    SUBTRACTIONS(2, quiz = listOf(Quiz.SUBTRACTION_QUIZ1, Quiz.SUBTRACTION_QUIZ2, Quiz.SUBTRACTION_QUIZ3)),
+    MULTIPLICATION(3, quiz = listOf(Quiz.MULTIPLICATION_QUIZ1, Quiz.MULTIPLICATION_QUIZ2, Quiz.MULTIPLICATION_QUIZ3)),
+    DIVISION(4, quiz = listOf(Quiz.DIVISION_QUIZ1, Quiz.DIVISION_QUIZ2, Quiz.DIVISION_QUIZ3)),
+    ADDITION_FRACTION(5, quiz = listOf(Quiz.ADDITION_FRACTION_QUIZ1, Quiz.ADDITION_FRACTION_QUIZ2, Quiz.ADDITION_FRACTION_QUIZ3)),
+    SUBTRACTION_FRACTION(6, quiz = listOf(Quiz.SUBTRACTION_FRACTION_QUIZ1, Quiz.SUBTRACTION_FRACTION_QUIZ2, Quiz.SUBTRACTION_FRACTION_QUIZ3)),
+    MULTIPLICATION_FRACTION(7, quiz = listOf(Quiz.MULTIPLICATION_FRACTION_QUIZ1, Quiz.MULTIPLICATION_FRACTION_QUIZ2, Quiz.MULTIPLICATION_FRACTION_QUIZ3)),
+    DIVISION_FRACTION(8, quiz =  listOf(Quiz.DIVISION_FRACTION_QUIZ1, Quiz.DIVISION_FRACTION_QUIZ2, Quiz.DIVISION_FRACTION_QUIZ3)),
+    ADDITION_SUBTRACTION_DECIMALS(9,quiz = listOf(Quiz.ADDITION_SUBTRACTION_DECIMALS_QUIZ1, Quiz.ADDITION_SUBTRACTION_DECIMALS_QUIZ2, Quiz.ADDITION_SUBTRACTION_DECIMALS_QUIZ3)),
+    MULTIPLICATION_DECIMALS(10, quiz = listOf(Quiz.MULTIPLICATION_DECIMALS_QUIZ1, Quiz.MULTIPLICATION_DECIMALS_QUIZ2, Quiz.MULTIPLICATION_DECIMALS_QUIZ3)),
+    DIVISION_DECIMALS(11, quiz = listOf(Quiz.DIVISION_DECIMALS_QUIZ1, Quiz.DIVISION_DECIMALS_QUIZ2, Quiz.DIVISION_DECIMALS_QUIZ3))
 }
 
-
-
 enum class Quiz(
-    var id: Int,
-    var question: String,
-    var choices: List<String>,
-    var correctAnswer: Int
+    val id: Int,
+    val question: String,
+    val choices: List<String>,
+    val correctAnswer: Int // 1-based index: 1 = first choice, 4 = last choice
 ) {
-    // Story #1
-    QUIZ1(
-        id = 1,
-        question = "Which of the following equations represents the total number of circles in the figure above?",
-        choices = listOf("6 + 7  = 13", "8 + 6 \u200E = 14", "8 + 7 \u200E = 15", "7 + 5 \u200E = 12"),
-        1
-    ),
-    QUIZ2(
-        id = 2,
-        question = "What is the sum of 700 and 136?",
-        choices = listOf("636", "664", "736", "836"),
-        2
-    ),
-    QUIZ3(
-        id = 3,
-        question = "Find the value of 4 hundreds + 26 tens?",
-        choices = listOf("426", "606", "660", "4026"),
-        1
-    ),
+    // Additions
+    ADDITIONS_QUIZ1(1, "What is 23 + 15?", listOf("40", "38", "28", "33"), 2),
+    ADDITIONS_QUIZ2(2, "What is 7 + 9?", listOf("16", "14", "15", "17"), 1),
+    ADDITIONS_QUIZ3(3, "What is 120 + 45?", listOf("155", "165", "160", "175"), 2),
 
-    // Story #2
-    QUIZ4(
-        id = 4,
-        question = "Which of the following is the sum of the smallest and the greatest two-digit numbers?",
+    // Subtractions
+    SUBTRACTION_QUIZ1(1, "What is 50 - 18?", listOf("28", "30", "32", "34"), 3),
+    SUBTRACTION_QUIZ2(2, "What is 9 - 4?", listOf("5", "6", "3", "4"), 1),
+    SUBTRACTION_QUIZ3(3, "What is 100 - 75?", listOf("25", "20", "15", "35"), 1),
 
-        choices = listOf("19", "99", "100","109"),
-        1
-    ),
-    QUIZ5(
-        id = 5,
-        question = "1385 girls and 432 boys took part in an art competition. Find the total number of participants.\n",
-        choices = listOf("935", "1817", "2165", "None of these"),
-        3
-    ),
-    QUIZ6(
-        id = 6,
-        question = "Which property is shown by the Addition sentence 11 + 0 \u200E = 11",
-        choices = listOf("Associative property", "Identity Property", "Additive Property", "Distributive Property"),
-        2
-    ),
+    // Multiplications
+    MULTIPLICATION_QUIZ1(1, "What is 4 × 5?", listOf("30", "25", "20", "15"), 3),
+    MULTIPLICATION_QUIZ2(2, "What is 7 × 3?", listOf("21", "24", "20", "18"), 1),
+    MULTIPLICATION_QUIZ3(3, "What is 6 × 6?", listOf("42", "36", "32", "30"), 2),
 
-    // Story #3
-    QUIZ7(
-        id = 7,
-        question = "Find 5 + 7 + 9",
-        choices = listOf("20", "12", "14", "21"),
-        3
-    ),
-    QUIZ8(
-        id = 8,
-        question = "A bouquet has 36 red roses and 18 white roses. How many roses does the bouquet have in all?",
-        choices = listOf("54", "72", "36", "108"),
-        1
-    ),
-    QUIZ9(
-        id = 9,
-        question = "Bus A has 45 passengers, Bus B has 56 passengers and Bus C has 32 passengers. How many passengers are on Bus A and Bus C?",
-        choices = listOf("101", "88", "77", "133"),
-        3
-    ),
-    // Story #4
-    QUIZ10(
-        id = 10,
-        question = "I have ________.",
-        choices = listOf("a house", "a friend", "a pencil"),
-2
-    ),
-    QUIZ11(
-        id = 11,
-        question = "Her name is ________.",
-        choices = listOf("Jenny", "Brittany", "Cindy"),
-        3
-    ),
-    QUIZ12(
-        id = 12,
-        question = "She has _______.",
-        choices = listOf("a box of toys", "a jar of candy", "a box of chocolates"),
-3
-    ),
+    // Divisions
+    DIVISION_QUIZ1(1, "What is 20 ÷ 5?", listOf("3", "6", "4", "5"), 3),
+    DIVISION_QUIZ2(2, "What is 9 ÷ 3?", listOf("2", "4", "5", "3"), 4),
+    DIVISION_QUIZ3(3, "What is 36 ÷ 6?", listOf("4", "6", "5", "7"), 2),
 
-    // Story #5
-    QUIZ13(
-        id = 13,
-        question = "Olivia _________.",
-        choices = listOf("can cook", "can climb", "can write"),
-3
-    ),
-    QUIZ14(
-        id = 14,
-        question = "She is ________.",
-        choices = listOf("helping her mother", "cleaning her room", "writing a letter"),
-        3
-    ),
-    QUIZ15(
-        id = 15,
-        question = "She will mail it _______.",
-        choices = listOf("to her cousin", "to her friend", "to her grandmother"),
-        3
-    ),
+    // Adding Fractions
+    ADDITION_FRACTION_QUIZ1(1, "½ + ¼ = ?", listOf("⅝", "¾", "⅓", "½"), 2),
+    ADDITION_FRACTION_QUIZ2(2, "⅓ + ⅓ = ?", listOf("½", "⅖", "¾", "⅔"), 4),
+    ADDITION_FRACTION_QUIZ3(3, "⅕ + ⅖ = ?", listOf("⅗", "⅝", "⅖", "¾"), 1),
 
-    // Story #6
-    QUIZ16(
-        id = 16,
-        question = "I see _______.",
-        choices = listOf("my friends", "my dad", "my friend"),
-        1
-    ),
-    QUIZ17(
-        id = 17,
-        question = "Rey is kicking _______.",
-        choices = listOf("the leaves", "the ball", "the wall"),
-        1
-    ),
-    QUIZ18(
-        id = 18,
-        question = "Joe is standing on _______.",
-        choices = listOf("floors", "a tree stump", "a table"),
-        2
-    ),
+    // Subtracting Fractions
+    SUBTRACTION_FRACTION_QUIZ1(1, "¾ - ¼ = ?", listOf("½", "⅓", "⅝", "¼"), 1),
+    SUBTRACTION_FRACTION_QUIZ2(2, "⅚ - ⅓ = ?", listOf("⅔", "⅖", "⅓", "½"), 4),
+    SUBTRACTION_FRACTION_QUIZ3(3, "⅘ - ⅕ = ?", listOf("¼", "½", "⅗", "⅜"), 3),
 
-    // Story #7
-    QUIZ19(
-        id = 19,
-        question = "Olivia is _______.",
-        choices = listOf("my teacher", "my friend", "my neighbor"),
-        2
-    ),
-    QUIZ20(
-        id = 20,
-        question = "She has ________.",
-        choices = listOf("a teddy bear", "a teddy bears", "dolls"),
-        1
-    ),
-    QUIZ21(
-        id = 21,
-        question = "Her _____ gave it to her.",
-        choices = listOf("aunt", "mom", "dad"),
-        3
-    ),
+    // Multiplying Fractions
+    MULTIPLICATION_FRACTION_QUIZ1(1, "½ × ⅓ = ?", listOf("⅓", "⅙", "⅕", "½"), 2),
+    MULTIPLICATION_FRACTION_QUIZ2(2, "⅖ × ¾ = ?", listOf("⅜", "3/10", "¼", "⅖"), 2),
+    MULTIPLICATION_FRACTION_QUIZ3(3, "⅔ × ⅖ = ?", listOf("⅖", "⅓", "4/15", "5/12"), 3),
 
-    // Story #8
-    QUIZ22(
-        id = 22,
-        question = "James went to the ________.",
-        choices = listOf("the bank", "the hospital", "the playground"),
-        2
-    ),
-    QUIZ23(
-        id = 23,
-        question = "He saw ________.",
-        choices = listOf("an ambulance", "a police car", "a shipwreck"),
-        1
-    ),
-    QUIZ24(
-        id = 24,
-        question = "The ambulance was __________.",
-        choices = listOf("tall", "little", "big"),
-        3
-    ),
-    // Story #9
-    QUIZ25(
-        id = 25,
-        question = "Larry has ______.",
-        choices = listOf("a cart", "a basket", "a ball"),
-        2
-    ),
-    QUIZ26(
-        id = 26,
-        question = "He is going to ______.",
-        choices = listOf("to the store", "to the garden", "to the zoo"),
-        2
-    ),
-    QUIZ27(
-        id = 27,
-        question = "He will _____ the eggs.",
-        choices = listOf("hide", "bring", "paint"),
-        1
-    ),
+    // Dividing Fractions
+    DIVISION_FRACTION_QUIZ1(1, "½ ÷ ¼ = ?", listOf("1", "4", "2", "½"), 3),
+    DIVISION_FRACTION_QUIZ2(2, "⅔ ÷ ⅓ = ?", listOf("2", "1", "3", "½"), 3),
+    DIVISION_FRACTION_QUIZ3(3, "¾ ÷ ½ = ?", listOf("1½", "1¼", "2", "1"), 1),
 
-    // Story #10
-    QUIZ28(
-        id = 28,
-        question = "Sarah and Will are ______.",
-        choices = listOf("my friends", "my friend", "cousins"),
-        1
-    ),
-    QUIZ29(
-        id = 29,
-        question = "They are _______ a Christmas tree.",
-        choices = listOf("bringing", "decorating", "selling"),
-        2
-    ),
-    QUIZ30(
-        id = 30,
-        question = "They love ______.",
-        choices = listOf("winter", "thanksgiving", "Christmas"),
-        3
-    ),
+    // Adding/Subtracting Decimals
+    ADDITION_SUBTRACTION_DECIMALS_QUIZ1(1, "1.2 + 0.3 = ?", listOf("1.6", "1.4", "1.3", "1.5"), 4),
+    ADDITION_SUBTRACTION_DECIMALS_QUIZ2(2, "2.5 - 1.1 = ?", listOf("1.4", "1.2", "1.5", "1.3"), 1),
+    ADDITION_SUBTRACTION_DECIMALS_QUIZ3(3, "0.75 + 0.25 = ?", listOf("1.0", "1.2", "1.1", "0.9"), 1),
 
-    // Story #11
-    QUIZ31(
-        id = 31,
-        question = "The vampire lives ______.",
-        choices = listOf("in the castle", "in the hotel", "in the house"),
-        1
-    ),
-    QUIZ32(
-        id = 32,
-        question = "He wears ________.",
-        choices = listOf("blue shoes", "a black cape", "a brown hat"),
-        2
-    ),
-    QUIZ33(
-        id = 33,
-        question = "He has ______.",
-        choices = listOf("a stove", "a car", "a candlestick"),
-        3
-    ),
+    // Multiplying Decimals
+    MULTIPLICATION_DECIMALS_QUIZ1(1, "0.5 × 2 = ?", listOf("1.0", "2.5", "1.5", "0.5"), 1),
+    MULTIPLICATION_DECIMALS_QUIZ2(2, "0.2 × 3 = ?", listOf("0.7", "0.6", "0.5", "0.8"), 2),
+    MULTIPLICATION_DECIMALS_QUIZ3(3, "0.3 × 0.3 = ?", listOf("0.03", "0.09", "0.06", "0.12"), 2),
 
-    // Story #12
-    QUIZ34(
-        id = 34,
-        question = "I see _____",
-        choices = listOf("policeman", "a chef", "a banker"),
-        2
-    ),
-    QUIZ35(
-        id = 35,
-        question = "She has ______.",
-        choices = listOf("an oven", "a bike", "a dress"),
-        1
-    ),
-    QUIZ36(
-        id = 36,
-        question = "She can make ______.",
-        choices = listOf("a house", "spaghetti", "pizza"),
-        3
-    ),
-    // Story #13
-    QUIZ37(
-        id = 37,
-        question = "I see _____.",
-        choices = listOf("a boy", "a girl", "a friend"),
-        1
-    ),
-    QUIZ38(
-        id = 38,
-        question = "He has ______.",
-        choices = listOf("a bike", "a rake", "a tire"),
-        2
-    ),
-    QUIZ39(
-        id = 39,
-        question = "He is ______ the backyard.",
-        choices = listOf("cleaning", "playing", "watching"),
-        1
-    ),
-
-    // Story #14
-    QUIZ40(
-        id = 40,
-        question = "Today is _______.",
-        choices = listOf("Christmas", "Thanksgiving", "Wednesday"),
-        2
-    ),
-    QUIZ41(
-        id = 41,
-        question = "We are eating _______.",
-        choices = listOf("turkey", "pizza", "spaghetti"),
-        1
-    ),
-    QUIZ42(
-        id = 42,
-        question = "We are very ______.",
-        choices = listOf("happy", "sad", "full"),
-        1
-    ),
-
-    // Story #15
-    QUIZ43(
-        id = 43,
-        question = "I have a friend and his name is _______.",
-        choices = listOf("Greg", "Bruce", "Larry"),
-        3
-    ),
-    QUIZ44(
-        id = 44,
-        question = "He can make ______.",
-        choices = listOf("a triangle", "a heart", "a square"),
-        2
-    ),
-    QUIZ45(
-        id = 45,
-        question = "He is going to give it _______.",
-        choices = listOf("to his friend", "to his dad", "to his mom"),
-        3
-    ),
-
-    // Story #16
-    QUIZ46(
-        id = 46,
-        question = "Rebecca is ______.",
-        choices = listOf("a scuba diver", "a banker", "a zookeeper"),
-        1
-    ),
-    QUIZ47(
-        id = 47,
-        question = "She is at ________.",
-        choices = listOf("the bottom of the aquarium", "the bottom of the pool", "the bottom of the ocean"),
-        3
-    ),
-    QUIZ48(
-        id = 48,
-        question = "She finds ______.",
-        choices = listOf("the fish", "an anchor", "the treasure"),
-        2
-    ),
-    QUIZ49(
-        id = 49,
-        question = "I see _____.",
-        choices = listOf("a soldier", "a forest ranger", "a policeman"),
-        2
-    ),
-    QUIZ50(
-        id = 50,
-        question = "She is holding ______.",
-        choices = listOf("a lantern", "lanterns", "a stick"),
-        1
-    ),
-    QUIZ51(
-        id = 51,
-        question = "She has ____.",
-        choices = listOf("a red truck", "an airplane", "a big truck"),
-        3
-    ),
-
-    // Story #18
-    QUIZ52(
-        id = 52,
-        question = "I saw _____.",
-        choices = listOf("a bird and a pig", "a dog and a cat", "a dog and a pig"),
-        3
-    ),
-    QUIZ53(
-        id = 53,
-        question = "The pig was _____.",
-        choices = listOf("healthy", "dirty", "clean"),
-        2
-    ),
-    QUIZ54(
-        id = 54,
-        question = "The dog was _____.",
-        choices = listOf("white", "dry", "wet"),
-        3
-    ),
-
-    // Story #19
-    QUIZ55(
-        id = 55,
-        question = "Diana has _____.",
-        choices = listOf("a flower", "flowers", "a notebook"),
-        2
-    ),
-    QUIZ56(
-        id = 56,
-        question = "Her flowers are _____.",
-        choices = listOf("in the floor", "in the pot", "in the box"),
-        2
-    ),
-    QUIZ57(
-        id = 57,
-        question = "Her flowers are _____.",
-        choices = listOf("blue and white", "yellow and pink", "white and gray"),
-        2
-    ),
-
-    // Story #20
-    QUIZ58(
-        id = 58,
-        question = "I see _____.",
-        choices = listOf("Santa", "my dad", "Brian"),
-        1
-    ),
-    QUIZ59(
-        id = 59,
-        question = "He wears his _____.",
-        choices = listOf("hat", "shoes", "glasses"),
-        3
-    ),
-    QUIZ60(
-        id = 60,
-        question = "He is ______ a list.",
-        choices = listOf("cutting", "reading", "folding"),
-        2
-    ),
-    QUIZ61(
-        id = 61,
-        question = "Emma likes _____.",
-        choices = listOf("to play", "to skate", "to ski"),
-        2
-    ),
-    QUIZ62(
-        id = 62,
-        question = "Alex likes _____.",
-        choices = listOf("to ski", "to skate", "to ride"),
-        1
-    ),
-    QUIZ63(
-        id = 63,
-        question = "They are _____.",
-        choices = listOf("my friend", "my friends", "my teachers"),
-        1
-    ),
-
-    // Story #22
-    QUIZ64(
-        id = 64,
-        question = "They are _____.",
-        choices = listOf("in the sand", "at the bottom of the pool", "at the bottom of the ocean"),
-        3
-    ),
-    QUIZ65(
-        id = 65,
-        question = "They find _____.",
-        choices = listOf("a boat", "a ship", "a shipwreck"),
-        3
-    ),
-    QUIZ66(
-        id = 66,
-        question = "They are looking for _______.",
-        choices = listOf("treasure", "the gold", "the bag"),
-        1
-    ),
-
-    // Story #23
-    QUIZ67(
-        id = 67,
-        question = "My name is _____.",
-        choices = listOf("Pamela", "Susan", "Rachel"),
-        3
-    ),
-    QUIZ68(
-        id = 68,
-        question = "That is my ______ tree.",
-        choices = listOf("green", "Christmas", "oak tree"),
-        2
-    ),
-    QUIZ69(
-        id = 69,
-        question = "There are _____ under the tree.",
-        choices = listOf("gifts", "toys", "cookies"),
-        1
-    )
-
+    // Dividing Decimals
+    DIVISION_DECIMALS_QUIZ1(1, "1.2 ÷ 0.4 = ?", listOf("2", "3", "4", "5"), 2),
+    DIVISION_DECIMALS_QUIZ2(2, "0.9 ÷ 0.3 = ?", listOf("4", "2", "5", "3"), 4),
+    DIVISION_DECIMALS_QUIZ3(3, "0.6 ÷ 2 = ?", listOf("0.2", "0.4", "0.5", "0.3"), 2);
 }
 

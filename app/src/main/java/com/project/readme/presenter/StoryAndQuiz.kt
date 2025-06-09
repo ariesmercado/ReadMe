@@ -13,25 +13,37 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -48,6 +60,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -76,6 +89,9 @@ class StoryAndQuiz: ComponentActivity() {
             val answerStatus by viewModel.answerStatus.collectAsState()
             val answer by viewModel.answer.collectAsState()
             val level = viewModel.level // use this level to change the rules
+            val score by viewModel.score.collectAsState()
+
+            val showScore by viewModel.showScore.collectAsState()
 
             Surface(color = MainColorUtils.primary) {
                 StoryAndQuizContent(
@@ -128,7 +144,7 @@ class StoryAndQuiz: ComponentActivity() {
             }
 
             // Show the dialog when needed
-            if (showDialog) {
+            if (showDialog && !showScore) {
                 ExamCancellationDialog(
                     onCancel = {
                         // Handle cancel logic here, like navigating away or resetting the exam
@@ -140,9 +156,25 @@ class StoryAndQuiz: ComponentActivity() {
                     }
                 )
             }
+
+            if (showScore) {
+                GameResultDialog(score = score ?: 0,
+                    onHomeClick = {
+                        showDialog = false
+                        finish()
+                    },
+                    onPlayClick = {
+                        showDialog = false
+                        onRetake()
+                    }
+                )
+            }
         }
     }
 
+    fun onRetake() {
+        viewModel.onRetake()
+    }
 
     fun onNextQuestion() {
         viewModel.onNextQuiz()
@@ -211,12 +243,7 @@ fun StoryAndQuizContent(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.padding(16.dp),
                 ) {
-                    val questionNumber = when (level) {
-                        "Addition" -> quiz.id
-                        "Subtraction" -> quiz.id - 21
-                        "multiplication" -> quiz.id - 45
-                        else -> quiz.id
-                    }
+                    val questionNumber = quiz.id
                     Text(
                         text = "Question#$questionNumber",
                         style = MaterialTheme.typography.titleLarge,
@@ -381,10 +408,8 @@ fun StoryAndQuizContent(
             Spacer(Modifier.height(16.dp))
 
             val lastNumber = when (level) {
-                "Addition" -> 9
-                "Subtraction" -> 45
-                "multiplication" -> 69
-                else -> 21
+                "TakeExam" -> 21
+                else -> 3
             }
 
             val buttonText = when {
@@ -494,11 +519,117 @@ fun ExamCancellationDialog(onCancel: () -> Unit, onDismiss: () -> Unit) {
     )
 }
 
+@Preview
+@Composable
+fun GameDialogPreview() {
+    GameResultDialog(1,{}, {})
+}
+
+@Composable
+fun GameResultDialog(score: Int, onHomeClick: () -> Unit, onPlayClick: () -> Unit) {
+    val (starsEarned, label, bannerColor) = when {
+        score >= 3 -> Triple(3, "EXCELLENT", Color(0xFF4CAF50))
+        score >= 2 -> Triple(2, "   GOOD   ", Color(0xFFFF9800))
+        else ->       Triple(1, "  FAILED  ", Color(0xFFF44336))
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF2C3E50).copy(alpha = 0.9f)),
+        contentAlignment = Alignment.Center
+    ) {
+        // Gold Border Wrapper
+        Box(
+            modifier = Modifier
+                .border(
+                    width = 6.dp,
+                    color = Color(0xFFFFD700), // Gold color
+                    shape = RoundedCornerShape(28.dp)
+                )
+                .background(Color(0xFFFCE9CB), shape = RoundedCornerShape(22.dp))
+                .padding(24.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                // Banner
+                Box(
+                    modifier = Modifier
+                        .background(bannerColor, RoundedCornerShape(16.dp))
+                        .padding(horizontal = 32.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Stars
+                Row(horizontalArrangement = Arrangement.Center) {
+                    repeat(3) { index ->
+                        val starColor = if (index < starsEarned) Color(0xFFFFC107) else Color.Gray
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star",
+                            tint = starColor,
+                            modifier = Modifier.size(40.dp).padding(4.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("YOUR SCORE", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.DarkGray)
+                Text("$score/3", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF57C00))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Buttons
+                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                    IconButton(onClick = onHomeClick) {
+                        Icon(
+                            Icons.Default.Home,
+                            contentDescription = "Home",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(Color(0xFF2196F3), CircleShape)
+                                .padding(12.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(24.dp))
+                    IconButton(onClick = onPlayClick) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Play",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(Color(0xFF2196F3), CircleShape)
+                                .padding(12.dp)
+                                .scale(scaleX = -1f, scaleY = 1f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
 @Composable
 @Preview
 fun StoryAndQuizContentPreview() {
     StoryAndQuizContent(
-        Story.STORY1,
+        Story.ADDITIONS,
         0,
         AnswerStatus.Correct,
         1,
