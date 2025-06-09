@@ -136,8 +136,7 @@ class BookAppActivity : ComponentActivity() {
                                     FavoritesScreen()
                             }
                             composable("about") {
-                                //AboutPage()
-                                FavoritesScreen()
+                                AboutPage()
                             }
 
                             composable("profile") {
@@ -670,25 +669,17 @@ fun AboutPage() {
     ) {
         // Header Section
         Text(
-            text = "About Us",
+            text = "About E-MathInsayo",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary,
+            color = MainColorUtils.primary,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
 
-        // Subheader with Introduction
-        Text(
-            text = "Empowering young minds through improved reading comprehension.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
         // Decorative Divider
         Divider(
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            color = MainColorUtils.primary.copy(alpha = 0.5f),
             thickness = 2.dp,
             modifier = Modifier.padding(vertical = 16.dp)
         )
@@ -696,8 +687,12 @@ fun AboutPage() {
         // Project Description
         Text(
             text = """
-                We are a dedicated team of future educators from Mabini Colleges, Inc., committed to supporting Grade 2 learners in developing essential reading skills. Our application combines interactive and engaging learning experiences to foster better comprehension and instill a love for reading in young minds.
-            """.trimIndent(),
+                E-MathInsayo is a mobile-based learning app designed to enhance the mathematical comprehension of Grade 6 learners, especially in mastering basic operations and key areas in mathematics. This app serves as an innovative intervention tool that supports learners in improving their math skills through guided tutorials and interactive activities.
+                
+                We are 3rd year college students from Mabini Colleges Inc., taking the course Bachelor of Elementary Education. Our mission is to make math learning fun, interactive, and accessible for all. E-MathInsayo provides engaging exercises and step-by-step tutorials to help learners build confidence and cope with mathematical challenges at their own pace.
+                
+                Together, let’s make learning math a joyful and meaningful experience!
+                """.trimIndent(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -705,9 +700,9 @@ fun AboutPage() {
 
         // Team Members Section
         Text(
-            text = "Meet the Team",
+            text = "Team Members",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MainColorUtils.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         TeamMembersCard()
@@ -718,40 +713,12 @@ fun AboutPage() {
             title = "Department",
             content = "College of Education"
         )
-        SectionWithIcon(
-            icon = Icons.Default.AccountBox,
-            title = "Course",
-            content = "Bachelor of Elementary Education"
-        )
 
         // School Information
         SectionWithIcon(
             icon = Icons.Default.Place,
             title = "School",
             content = "Mabini Colleges, Inc."
-        )
-
-        // Mission Statement
-        Text(
-            text = "Our Mission",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
-        Text(
-            text = "To inspire young learners to achieve their full potential by building a strong foundation in reading comprehension, paving the way for academic success and lifelong learning.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Closing Message
-        Text(
-            text = "Together, let’s create a brighter future, one reader at a time.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 16.dp),
-            fontStyle = FontStyle.Italic
         )
     }
 }
@@ -763,22 +730,22 @@ fun TeamMembersCard() {
             .fillMaxWidth()
             .padding(bottom = 16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MainColorUtils.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "Our Team Members",
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
+                color = MainColorUtils.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
                 text = """
-                    • Pia A. Breguiles
-                    • Ronalyn Cemanes
-                    • Jonalyn Octa
-                    • Patricia Mae De Jesus
-                    • Jilyn Santiago
+                    • Bea S. Buenavente
+                    • Loren Y. Todenio
+                    • Daniela A. Samonte
+                    • Emmanuel Toledo
+                    • John Lloyd Ladea
                 """.trimIndent(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface

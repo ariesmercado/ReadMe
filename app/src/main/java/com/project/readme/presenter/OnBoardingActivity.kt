@@ -98,7 +98,7 @@ fun OnboardingScreen(onGetStartedClick: () -> Unit) {
 
             // Header Text
             Text(
-                text = "Welcome to e-Mathensayo!",
+                text = "Welcome to E-MathInsayo!",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.White

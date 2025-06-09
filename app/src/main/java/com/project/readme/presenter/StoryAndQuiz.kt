@@ -598,7 +598,7 @@ fun GameResultDialog(score: Int, onHomeClick: () -> Unit, onPlayClick: () -> Uni
                             contentDescription = "Home",
                             tint = Color.White,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(60.dp)
                                 .background(Color(0xFF2196F3), CircleShape)
                                 .padding(12.dp)
                         )
@@ -610,7 +610,7 @@ fun GameResultDialog(score: Int, onHomeClick: () -> Unit, onPlayClick: () -> Uni
                             contentDescription = "Play",
                             tint = Color.White,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(60.dp)
                                 .background(Color(0xFF2196F3), CircleShape)
                                 .padding(12.dp)
                                 .scale(scaleX = -1f, scaleY = 1f)
