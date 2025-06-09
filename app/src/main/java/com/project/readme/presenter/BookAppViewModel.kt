@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.String
+import kotlin.collections.Map
 
 @HiltViewModel
 class BookAppViewModel @Inject constructor(
@@ -30,6 +32,9 @@ class BookAppViewModel @Inject constructor(
 
     private val _profile = MutableStateFlow<Resource<UserProfile?>>(Resource.Success(savedStateHandle["USER"]))
     val profile = _profile.asStateFlow()
+
+    private val _scores = MutableStateFlow<Map<String, Int?>?>(null)
+    val score = _scores.asStateFlow()
 
     val favorites: StateFlow<List<String>> = bookRepository.getFavoriteTitles()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -47,5 +52,12 @@ class BookAppViewModel @Inject constructor(
             _profile.value = Resource.Success(bookRepository.getUserProfile())
         }
     }
+
+    fun loadAllScores() {
+        viewModelScope.launch {
+            _scores.value = bookRepository.getAllScore()
+        }
+    }
+
 
 }

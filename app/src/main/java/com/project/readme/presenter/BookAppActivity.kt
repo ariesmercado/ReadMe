@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -114,6 +115,7 @@ class BookAppActivity : ComponentActivity() {
 
         setContent {
             val profile by viewModel.profile.collectAsState()
+            val scores by viewModel.score.collectAsState()
             val navController = rememberNavController()
             ReadMeTheme {
                     // The NavHost occupies the remaining space above the bottom navigation bar
@@ -127,7 +129,7 @@ class BookAppActivity : ComponentActivity() {
                             composable("home") {
                                 if(profile is Resource.Success) {
                                     Timber.d("profile.data -> ${profile.data}")
-                                    MediumTopAppBarExample(profile.data, ::navigateToLesson)
+                                    MediumTopAppBarExample(profile.data, ::navigateToLesson, scores)
                                 }
                             }
                             composable("results") {
@@ -150,6 +152,11 @@ class BookAppActivity : ComponentActivity() {
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadAllScores()
     }
 
     private fun navigateToLesson(level: String) {
@@ -259,6 +266,7 @@ fun ProfileScreen(kFunction4: (String, Int) -> Unit, profile: UserProfile?) {
 fun MediumTopAppBarExample(
     user: UserProfile?,
     onLessonClick: (String) -> Unit,
+    scores: Map<String, Int?>?,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -337,10 +345,16 @@ fun MediumTopAppBarExample(
                 ) {
                     LazyColumn (Modifier.fillMaxSize()) {
                         item {
-                            SubjectButton(R.drawable.plus,"Addition", onLessonClick, "Addition")
+                            SubjectButton(R.drawable.plus,"Addition", onLessonClick, "Addition",scores)
                         }
                         item {
-                            SubjectButton(R.drawable.minus, "Subtraction", onLessonClick, "Subtraction")
+                            SubjectButton(
+                                R.drawable.minus,
+                                "Subtraction",
+                                onLessonClick,
+                                "Subtraction",
+                                scores
+                            )
                         }
                         item {
                             SubjectButton(
@@ -348,17 +362,25 @@ fun MediumTopAppBarExample(
                                 "Multiplication",
                                 onLessonClick,
                                 "Multiplication",
+                                scores,
                             )
                         }
                         item {
-                            SubjectButton(R.drawable.divide, "Division", onLessonClick, "Diviving")
+                            SubjectButton(
+                                R.drawable.divide,
+                                "Division",
+                                onLessonClick,
+                                "Diviving",
+                                scores
+                            )
                         }
                         item {
                             SubjectButton(
                                 R.drawable.pie_chart,
                                 "Adding Fractions",
                                 onLessonClick,
-                                "Addingf"
+                                "Addingf",
+                                scores
                             )
                         }
                         item {
@@ -366,7 +388,8 @@ fun MediumTopAppBarExample(
                                 R.drawable.pie_chart,
                                 "Subtracting Fractions",
                                 onLessonClick,
-                                "Subtractingf"
+                                "Subtractingf",
+                                scores
                             )
                         }
                         item {
@@ -375,6 +398,7 @@ fun MediumTopAppBarExample(
                                 "Multiplying Fractions",
                                 onLessonClick,
                                 "Multiplyingf",
+                                scores,
                             )
                         }
                         item {
@@ -383,6 +407,7 @@ fun MediumTopAppBarExample(
                                 "Dividing Fractions",
                                 onLessonClick,
                                 "Dividingf",
+                                scores,
                             )
                         }
                         item {
@@ -390,7 +415,8 @@ fun MediumTopAppBarExample(
                                 R.drawable.decimal,
                                 "Adding and Subtracting Decimals",
                                 onLessonClick,
-                                "Addsubd"
+                                "Addsubd",
+                                scores
                             )
                         }
                         item {
@@ -399,6 +425,7 @@ fun MediumTopAppBarExample(
                                 "Multiplying Decimals",
                                 onLessonClick,
                                 "Multiplyingd",
+                                scores,
                             )
                         }
                         item {
@@ -406,11 +433,18 @@ fun MediumTopAppBarExample(
                                 R.drawable.decimal,
                                 "Dividing Decimals",
                                 onLessonClick,
-                                "Dived"
+                                "Dived",
+                                scores
                             )
                         }
                         item {
-                            SubjectButton(R.drawable.quiz, "Take final Quiz", onLessonClick, "dsdas")
+                            SubjectButton(
+                                R.drawable.quiz,
+                                "Take final Quiz",
+                                onLessonClick,
+                                "dsdas",
+                                scores
+                            )
                         }
 
                         item {
@@ -424,7 +458,13 @@ fun MediumTopAppBarExample(
 }
 
 @Composable
-fun SubjectButton(icon: Int, title: String, onLessonClick: (String) -> Unit, level: String) {
+fun SubjectButton(
+    icon: Int,
+    title: String,
+    onLessonClick: (String) -> Unit,
+    level: String,
+    scores: Map<String, Int?>?
+) {
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
@@ -440,44 +480,61 @@ fun SubjectButton(icon: Int, title: String, onLessonClick: (String) -> Unit, lev
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column {
+            Column (modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp, start = 16.dp)
                 )
 
-                OutlinedCard (
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
-                ) {
-                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "Taken",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White,
-                            modifier = Modifier.padding(start = 6.dp, top = 4.dp, bottom = 4.dp)
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "check",
-                            tint = Color.Green,
-                            modifier = Modifier.size(24.dp).padding(top = 4.dp, bottom = 4.dp, end = 4.dp)
-                        )
+                val score = scores?.get(level)
+                if (score != null) {
+                    Row(horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
+                        repeat(3) { index ->
+                            val starColor = if (index < score) Color(0xFFFFC107) else Color.LightGray
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Star",
+                                tint = starColor,
+                                modifier = Modifier.size(36.dp).padding(vertical = 4.dp)
+                            )
+                        }
                     }
-
-
-
+                } else {
+                    Spacer(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
                 }
+
+//                OutlinedCard (
+//                    colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
+//                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+//                ) {
+//                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+//                        Text(
+//                            text = "Taken",
+//                            style = MaterialTheme.typography.bodySmall,
+//                            color = Color.White,
+//                            modifier = Modifier.padding(start = 6.dp, top = 4.dp, bottom = 4.dp)
+//                        )
+//                        Icon(
+//                            imageVector = Icons.Default.Check,
+//                            contentDescription = "check",
+//                            tint = Color.Green,
+//                            modifier = Modifier.size(24.dp).padding(top = 4.dp, bottom = 4.dp, end = 4.dp)
+//                        )
+//                    }
+//
+//
+//
+//                }
 
             }
 
             CuteImage(
                 icon = painterResource(id = icon),
-                modifier = Modifier.padding(end = 16.dp).size(36.dp)
+                modifier = Modifier.padding(end = 16.dp, top = 16.dp, bottom = 16.dp).size(36.dp)
             )
         }
     }
@@ -490,7 +547,7 @@ fun CuteImage(icon: Painter, modifier: Modifier = Modifier) {
 
 @Composable
 fun SubjectButtonPreview() {
-    SubjectButton(R.drawable.plus, "Addition", {}, "")
+    SubjectButton(R.drawable.plus, "Addition", {}, "", null)
 }
 
 @ExperimentalMaterial3Api

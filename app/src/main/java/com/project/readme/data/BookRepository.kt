@@ -22,6 +22,7 @@ interface BookRepository {
 
     suspend fun updateScore(score: Int, level: String)
     suspend fun getScore(level: String): Int?
+    suspend fun getAllScore(): Map<String, Int?>
 }
 
 class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, private val database: AppDatabase): BookRepository {
@@ -58,7 +59,7 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
 
     override suspend fun updateScore(score: Int, level: String) {
         dataStorageHelper.apply {
-            saveValue("Score_$level", score)
+            saveValue("$level", score)
         }
     }
 
@@ -67,6 +68,22 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
     }
 
     override fun getFavorites(): Flow<List<Favorites>> = database.favoriteDao().all()
+
+    override suspend fun getAllScore(): Map<String, Int?> {
+        return mapOf(
+            "Addition" to dataStorageHelper.getValue<Int?>("Addition"),
+            "Subtraction" to dataStorageHelper.getValue<Int?>("Subtraction"),
+            "Multiplication" to dataStorageHelper.getValue<Int?>("Multiplication"),
+            "Dividing" to dataStorageHelper.getValue<Int?>("Dividing"),
+            "Addingf" to dataStorageHelper.getValue<Int?>("Addingf"),
+            "Subtractingf" to dataStorageHelper.getValue<Int?>("Subtractingf"),
+            "Multiplyingf" to dataStorageHelper.getValue<Int?>("Multiplyingf"),
+            "Dividingf" to dataStorageHelper.getValue<Int?>("Dividingf"),
+            "Addsubd" to dataStorageHelper.getValue<Int?>("Addsubd"),
+            "Multiplyingd" to dataStorageHelper.getValue<Int?>("Multiplyingd"),
+            "Dived" to dataStorageHelper.getValue<Int?>("Dived")
+        )
+    }
 
 }
 
