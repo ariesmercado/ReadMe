@@ -374,7 +374,7 @@ fun StoryAndQuizContent(
             if (answerStatus !is AnswerStatus.None) {
                 val color = if (answerStatus is AnswerStatus.Correct) "#22bb33" else "#bb2124"
                 LaunchedEffect(answerStatus) {
-                        val emoji = if (answerStatus is AnswerStatus.Correct) "🥳" else "😢"
+                        val emoji = if (answerStatus is AnswerStatus.Correct) "✅" else "❌"
                         floatingEmojis.add(AnimatedEmoji(emoji = emoji, id = System.currentTimeMillis()))
                 }
                 Card(
