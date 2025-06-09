@@ -524,7 +524,7 @@ fun SubjectButton(
                         modifier = Modifier.padding(top = 8.dp, start = 16.dp)
                     )
 
-                    if (level == "Takefinalquiz") {
+                    if (score != null) {
                         OutlinedCard (
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
                             modifier = Modifier.padding(start = 6.dp, end = 4.dp, top = 9.dp)
