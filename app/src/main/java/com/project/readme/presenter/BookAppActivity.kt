@@ -36,13 +36,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -70,12 +71,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
@@ -129,7 +130,7 @@ class BookAppActivity : ComponentActivity() {
                             composable("home") {
                                 if(profile is Resource.Success) {
                                     Timber.d("profile.data -> ${profile.data}")
-                                    MediumTopAppBarExample(profile.data, ::navigateToLesson, scores)
+                                    MediumTopAppBarExample(profile.data, ::navigateToLesson, scores, ::onSeeResult)
                                 }
                             }
                             composable("results") {
@@ -159,14 +160,26 @@ class BookAppActivity : ComponentActivity() {
     }
 
     private fun navigateToLesson(level: String) {
-        val intent = Intent(this, WebviewActivity::class.java)
-        intent.putExtra("level", level)
-        startActivity(intent)
+        if (level == "Takefinalquiz") {
+            val intent = Intent(this, StoryAndQuiz::class.java)
+            intent.putExtra("level", level)
+            startActivity(intent)
+        } else {
+            val intent = Intent(this, WebviewActivity::class.java)
+            intent.putExtra("level", level)
+            startActivity(intent)
+        }
     }
 
     private fun updateProfile(name: String,selectedAvatar: Int) {
         viewModel.updateUserProfile(name, selectedAvatar)
         Toast.makeText(this, "Your profile has been successfully updated!", Toast.LENGTH_SHORT).show()
+    }
+
+    fun onSeeResult(level: String) {
+        val intent = Intent(this, ExamResult::class.java)
+        intent.putExtra("level", level)
+        startActivity(intent)
     }
 }
 
@@ -266,6 +279,7 @@ fun MediumTopAppBarExample(
     user: UserProfile?,
     onLessonClick: (String) -> Unit,
     scores: Map<String, Int?>?,
+    onSeeResult: (String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -344,7 +358,14 @@ fun MediumTopAppBarExample(
                 ) {
                     LazyColumn (Modifier.fillMaxSize()) {
                         item {
-                            SubjectButton(R.drawable.plus,"Addition", onLessonClick, "Addition",scores)
+                            SubjectButton(
+                                R.drawable.plus,
+                                "Addition",
+                                onLessonClick,
+                                "Addition",
+                                scores,
+                                onSeeResult
+                            )
                         }
                         item {
                             SubjectButton(
@@ -352,7 +373,8 @@ fun MediumTopAppBarExample(
                                 "Subtraction",
                                 onLessonClick,
                                 "Subtraction",
-                                scores
+                                scores,
+                                onSeeResult
                             )
                         }
                         item {
@@ -362,6 +384,7 @@ fun MediumTopAppBarExample(
                                 onLessonClick,
                                 "Multiplication",
                                 scores,
+                                onSeeResult,
                             )
                         }
                         item {
@@ -370,7 +393,8 @@ fun MediumTopAppBarExample(
                                 "Division",
                                 onLessonClick,
                                 "Diviving",
-                                scores
+                                scores,
+                                onSeeResult
                             )
                         }
                         item {
@@ -379,7 +403,8 @@ fun MediumTopAppBarExample(
                                 "Adding Fractions",
                                 onLessonClick,
                                 "Addingf",
-                                scores
+                                scores,
+                                onSeeResult
                             )
                         }
                         item {
@@ -388,7 +413,8 @@ fun MediumTopAppBarExample(
                                 "Subtracting Fractions",
                                 onLessonClick,
                                 "Subtractingf",
-                                scores
+                                scores,
+                                onSeeResult
                             )
                         }
                         item {
@@ -398,6 +424,7 @@ fun MediumTopAppBarExample(
                                 onLessonClick,
                                 "Multiplyingf",
                                 scores,
+                                onSeeResult,
                             )
                         }
                         item {
@@ -407,6 +434,7 @@ fun MediumTopAppBarExample(
                                 onLessonClick,
                                 "Dividingf",
                                 scores,
+                                onSeeResult,
                             )
                         }
                         item {
@@ -415,7 +443,8 @@ fun MediumTopAppBarExample(
                                 "Adding and Subtracting Decimals",
                                 onLessonClick,
                                 "Addsubd",
-                                scores
+                                scores,
+                                onSeeResult
                             )
                         }
                         item {
@@ -425,6 +454,7 @@ fun MediumTopAppBarExample(
                                 onLessonClick,
                                 "Multiplyingd",
                                 scores,
+                                onSeeResult,
                             )
                         }
                         item {
@@ -433,7 +463,8 @@ fun MediumTopAppBarExample(
                                 "Dividing Decimals",
                                 onLessonClick,
                                 "Dived",
-                                scores
+                                scores,
+                                onSeeResult
                             )
                         }
                         item {
@@ -441,8 +472,9 @@ fun MediumTopAppBarExample(
                                 R.drawable.quiz,
                                 "Take final Quiz",
                                 onLessonClick,
-                                "dsdas",
-                                scores
+                                "Takefinalquiz",
+                                scores,
+                                onSeeResult
                             )
                         }
 
@@ -462,8 +494,11 @@ fun SubjectButton(
     title: String,
     onLessonClick: (String) -> Unit,
     level: String,
-    scores: Map<String, Int?>?
+    scores: Map<String, Int?>?,
+    onSeeResult: (String) -> Unit
 ) {
+
+    val score = scores?.get(level)
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
@@ -480,16 +515,43 @@ fun SubjectButton(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column (modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(top = 8.dp, start = 16.dp)
+                    )
 
-                val score = scores?.get(level)
-                if (score != null) {
+                    if (level == "Takefinalquiz") {
+                        OutlinedCard (
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
+                            modifier = Modifier.padding(start = 6.dp, end = 4.dp, top = 9.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Taken",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(start = 6.dp, top = 4.dp, bottom = 4.dp)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "check",
+                                    tint = Color.Green,
+                                    modifier = Modifier.size(24.dp)
+                                        .padding(top = 4.dp, bottom = 4.dp, end = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (score != null && level != "Takefinalquiz") {
                     Row(horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
                         repeat(3) { index ->
@@ -506,28 +568,18 @@ fun SubjectButton(
                     Spacer(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
                 }
 
-//                OutlinedCard (
-//                    colors = CardDefaults.cardColors(containerColor = Color(0xFF49AFDC)),
-//                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
-//                ) {
-//                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-//                        Text(
-//                            text = "Taken",
-//                            style = MaterialTheme.typography.bodySmall,
-//                            color = Color.White,
-//                            modifier = Modifier.padding(start = 6.dp, top = 4.dp, bottom = 4.dp)
-//                        )
-//                        Icon(
-//                            imageVector = Icons.Default.Check,
-//                            contentDescription = "check",
-//                            tint = Color.Green,
-//                            modifier = Modifier.size(24.dp).padding(top = 4.dp, bottom = 4.dp, end = 4.dp)
-//                        )
-//                    }
-//
-//
-//
-//                }
+                if (score != null && level == "Takefinalquiz") {
+                    Button(
+                        onClick = { onSeeResult.invoke(level) },
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color("#98fbcb".toColorInt())),
+                        shape = RoundedCornerShape(30.dp),
+                    ) {
+                        Text("View Result",style = MaterialTheme.typography.bodySmall.copy(color = Color.DarkGray),
+                            textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
+                    }
+
+                }
 
             }
 
@@ -546,7 +598,7 @@ fun CuteImage(icon: Painter, modifier: Modifier = Modifier) {
 
 @Composable
 fun SubjectButtonPreview() {
-    SubjectButton(R.drawable.plus, "Addition", {}, "", null)
+    SubjectButton(R.drawable.plus, "Addition", {}, "", null, {})
 }
 
 @ExperimentalMaterial3Api

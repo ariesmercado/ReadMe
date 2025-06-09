@@ -13,6 +13,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,10 +76,10 @@ class ExamResult : ComponentActivity() {
 @Composable
 fun ExamResultContent(score: Int?, profile: UserProfile?, level: String?) {
     val context = LocalContext.current
-    val items = 3
+    val items = 10
     val percentage = ((score?.toDouble() ?: 0.0) / items) * 100
     val isPassed = percentage >= 75
-    val image = if (isPassed) R.drawable.fireworks else R.drawable.failed_exam
+    val image = if (true) R.drawable.celeb else R.drawable.sadf
 
     var bitmapToSave by remember { mutableStateOf<Bitmap?>(null) }
     val viewRef = remember { mutableStateOf<View?>(null) }
@@ -88,7 +89,8 @@ fun ExamResultContent(score: Int?, profile: UserProfile?, level: String?) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.White)
+            .border(16.dp,Color.Blue),
         contentAlignment = Alignment.Center
     ) {
         AndroidView(
@@ -131,32 +133,11 @@ fun ExamResultContent(score: Int?, profile: UserProfile?, level: String?) {
                     contentPadding = PaddingValues(16.dp),
                 ) {
                     Text(
-                        text = "Retake exam again",
+                        text = "Retake exam",
                         style = MaterialTheme.typography.titleLarge.copy(color = Color.Gray),
                         textAlign = TextAlign.Center
                     )
                 }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            // ✅ Dialog Trigger Button
-            Button(
-                onClick = {
-                    showDialog = true
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(android.graphics.Color.parseColor("#66cbad"))),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(0.8f),
-                contentPadding = PaddingValues(16.dp),
-            ) {
-                Text(
-                    text = "Take another Exam",
-                    style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
-                    textAlign = TextAlign.Center
-                )
             }
 
             Spacer(Modifier.height(8.dp))
@@ -243,18 +224,18 @@ fun ResultContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = painterResource(id = image),
                 contentDescription = "Exam Result Image",
-                modifier = Modifier.size(250.dp),
+                modifier = Modifier.size(200.dp),
                 contentScale = ContentScale.Crop
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
 
             
             Text(
@@ -266,7 +247,7 @@ fun ResultContent(
             )
 
             Spacer(Modifier.height(16.dp))
-            val items = if (level == "easy") 21 else 24
+            val items = 10
 
             Text(
                 text = "${score ?: 0}/$items",
@@ -279,9 +260,9 @@ fun ResultContent(
             Spacer(Modifier.height(16.dp))
 
             val message = if (isPassed) {
-                "You passed the exam in ${level} mode with ${"%.2f".format(percentage)}%!"
+                "You passed the final quiz with ${"%.2f".format(percentage)}%!"
             } else {
-                "You failed the exam in ${level} mode with ${"%.2f".format(percentage)}%. Don't give up — try again!"
+                "You failed the the final quiz with ${"%.2f".format(percentage)}%. Don't give up — try again!"
             }
 
             Text(

@@ -64,7 +64,7 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
     }
 
     override suspend fun getScore(level: String): Int? {
-        return dataStorageHelper.getValue<Int?>("Score_$level")
+        return dataStorageHelper.getValue<Int?>("$level")
     }
 
     override fun getFavorites(): Flow<List<Favorites>> = database.favoriteDao().all()
@@ -81,7 +81,8 @@ class BookRepositoryImpl(private val dataStorageHelper: DataStorageHelper, priva
             "Dividingf" to dataStorageHelper.getValue<Int?>("Dividingf"),
             "Addsubd" to dataStorageHelper.getValue<Int?>("Addsubd"),
             "Multiplyingd" to dataStorageHelper.getValue<Int?>("Multiplyingd"),
-            "Dived" to dataStorageHelper.getValue<Int?>("Dived")
+            "Dived" to dataStorageHelper.getValue<Int?>("Dived"),
+            "Takefinalquiz" to dataStorageHelper.getValue<Int?>("Takefinalquiz")
         )
     }
 

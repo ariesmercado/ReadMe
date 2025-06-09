@@ -32,6 +32,7 @@ class StoryAndQuizViewModel @Inject constructor(
             "Addsubd" -> Story.ADDITION_SUBTRACTION_DECIMALS
             "Multiplyingd" -> Story.MULTIPLICATION_DECIMALS
             "Dived" -> Story.DIVISION_DECIMALS
+            "Takefinalquiz" ->Story.MIX_SUBJECT
             else -> Story.ADDITIONS // fallback/default
         }
     )
@@ -64,6 +65,7 @@ class StoryAndQuizViewModel @Inject constructor(
             "Addsubd" -> Story.ADDITION_SUBTRACTION_DECIMALS
             "Multiplyingd" -> Story.MULTIPLICATION_DECIMALS
             "Dived" -> Story.DIVISION_DECIMALS
+            "Takefinalquiz" -> Story.MIX_SUBJECT
             else -> Story.ADDITIONS // fallback/default
         }
 
@@ -115,8 +117,10 @@ class StoryAndQuizViewModel @Inject constructor(
             }
 
             when (level) {
-                "TakeQuiz" -> {
-                    //
+                "Takefinalquiz" -> {
+                    if (cQuiz.id == 10) {
+                        score.value?.let { bookRepository.updateScore(it, level.toString()) }
+                    }
                 }
                 else -> {
                     if (cQuiz.id == 3) {

@@ -18,7 +18,20 @@ enum class Story(
     DIVISION_FRACTION(8, quiz =  listOf(Quiz.DIVISION_FRACTION_QUIZ1, Quiz.DIVISION_FRACTION_QUIZ2, Quiz.DIVISION_FRACTION_QUIZ3)),
     ADDITION_SUBTRACTION_DECIMALS(9,quiz = listOf(Quiz.ADDITION_SUBTRACTION_DECIMALS_QUIZ1, Quiz.ADDITION_SUBTRACTION_DECIMALS_QUIZ2, Quiz.ADDITION_SUBTRACTION_DECIMALS_QUIZ3)),
     MULTIPLICATION_DECIMALS(10, quiz = listOf(Quiz.MULTIPLICATION_DECIMALS_QUIZ1, Quiz.MULTIPLICATION_DECIMALS_QUIZ2, Quiz.MULTIPLICATION_DECIMALS_QUIZ3)),
-    DIVISION_DECIMALS(11, quiz = listOf(Quiz.DIVISION_DECIMALS_QUIZ1, Quiz.DIVISION_DECIMALS_QUIZ2, Quiz.DIVISION_DECIMALS_QUIZ3))
+    DIVISION_DECIMALS(11, quiz = listOf(Quiz.DIVISION_DECIMALS_QUIZ1, Quiz.DIVISION_DECIMALS_QUIZ2, Quiz.DIVISION_DECIMALS_QUIZ3)),
+    MIX_SUBJECT(12, quiz = listOf(
+        Quiz.MIX_QUIZ1,
+        Quiz.MIX_QUIZ2,
+        Quiz.MIX_QUIZ3,
+        Quiz.MIX_QUIZ4,
+        Quiz.MIX_QUIZ5,
+        Quiz.MIX_QUIZ6,
+        Quiz.MIX_QUIZ7,
+        Quiz.MIX_QUIZ8,
+        Quiz.MIX_QUIZ9,
+        Quiz.MIX_QUIZ10,
+
+    ))
 }
 
 enum class Quiz(
@@ -80,6 +93,18 @@ enum class Quiz(
     // Dividing Decimals
     DIVISION_DECIMALS_QUIZ1(1, "1.2 ÷ 0.4 = ?", listOf("2", "3", "4", "5"), 2),
     DIVISION_DECIMALS_QUIZ2(2, "0.9 ÷ 0.3 = ?", listOf("4", "2", "5", "3"), 4),
-    DIVISION_DECIMALS_QUIZ3(3, "0.6 ÷ 2 = ?", listOf("0.2", "0.4", "0.5", "0.3"), 2);
+    DIVISION_DECIMALS_QUIZ3(3, "0.6 ÷ 2 = ?", listOf("0.2", "0.4", "0.5", "0.3"), 2),
+
+    // Dividing Decimals
+    MIX_QUIZ1(1, "What is 123 + 89?", listOf("201", "213", "209", "212"), 4),
+    MIX_QUIZ2(2, "What is 250 - 87?", listOf("183", "173", "163", "153"), 3),
+    MIX_QUIZ3(3, "What is 14 × 6?", listOf("80", "84", "94", "72"), 2),
+    MIX_QUIZ4(4, "What is 144 ÷ 12?", listOf("14", "10", "16", "12"), 4),
+    MIX_QUIZ5(5, "What is ⅖ + ⅗?", listOf("1", "¾", "⅘", "⅚"), 1),
+    MIX_QUIZ6(6, "What is 7/8 - 3/8?", listOf("⅓", "½", "⅝", "3/8"), 2),
+    MIX_QUIZ7(7, "What is ⅔ × ¾?", listOf("⅔", "⅘", "½", "¼"), 3),
+    MIX_QUIZ8(8, "What is ⅚ ÷ ⅖?", listOf("1¼", "2", "1", "⅗"), 2),
+    MIX_QUIZ9(9, "What is 3.75 + 1.6?", listOf("5.25", "5.15", "5.45", "5.35"), 4),
+    MIX_QUIZ10(10,"What is 1.2 × 0.5?", listOf("0.6", "0.5", "0.7", "0.8"), 1),
 }
 

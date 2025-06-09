@@ -408,7 +408,7 @@ fun StoryAndQuizContent(
             Spacer(Modifier.height(16.dp))
 
             val lastNumber = when (level) {
-                "TakeExam" -> 21
+                "Takefinalquiz" -> 10
                 else -> 3
             }
 
