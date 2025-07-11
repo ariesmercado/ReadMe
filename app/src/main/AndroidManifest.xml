@@ -6,14 +6,14 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
-        android:name=".ReadMeApplication"
+        android:name="com.project.emathinsayo.EmathInsayoApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
         <activity
-            android:name=".presenter.SplashScreenActivity"
+            android:name="com.project.emathinsayo.presenter.SplashScreenActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -26,42 +26,42 @@
         </activity>
 
         <activity
-            android:name=".presenter.BookAppActivity"
+            android:name="com.project.emathinsayo.presenter.BookAppActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
 
         <activity
-            android:name=".presenter.OnBoardingActivity"
+            android:name="com.project.emathinsayo.presenter.OnBoardingActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
 
         <activity
-            android:name=".presenter.RegisterActivity"
+            android:name="com.project.emathinsayo.presenter.RegisterActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
 
         <activity
-            android:name=".presenter.StoryAndQuiz"
+            android:name="com.project.emathinsayo.presenter.StoryAndQuiz"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
 
         <activity
-            android:name=".presenter.ExamResult"
+            android:name="com.project.emathinsayo.presenter.ExamResult"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.ReadMe" />
 
         <activity
-            android:name=".presenter.WebviewActivity"
+            android:name="com.project.emathinsayo.presenter.WebviewActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:exported="true"

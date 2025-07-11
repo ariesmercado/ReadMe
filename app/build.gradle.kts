@@ -24,10 +24,10 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
 }
 android {
-    namespace = "com.project.readme"
+    namespace = "com.project.emathinsayo"
     compileSdk = 34
     defaultConfig {
-        applicationId = "com.project.readme"
+        applicationId = "com.project.emathinsayo"
         minSdk = 21
         targetSdk = 34
         versionCode = 2
