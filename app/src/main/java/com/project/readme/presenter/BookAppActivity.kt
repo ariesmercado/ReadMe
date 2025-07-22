@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -44,6 +47,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -62,6 +66,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,6 +84,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,6 +101,7 @@ import com.project.readme.R
 import com.project.readme.common.Resource
 import com.project.readme.data.Book
 import com.project.readme.data.UserProfile
+import com.project.readme.data.entity.Scores
 import com.project.readme.data.genarator.LessonUtil
 import com.project.readme.ui.theme.ReadMeTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -124,8 +131,11 @@ class BookAppActivity : ComponentActivity() {
 
         setContent {
             val books by viewModel.lesson.collectAsState()
+            val firstLesson by viewModel.firstLessons.collectAsState()
+            val secondLesson by viewModel.secondLessons.collectAsState()
             val profile by viewModel.profile.collectAsState()
             val favorites by viewModel.favorites.collectAsState()
+            val scores by viewModel.scores.collectAsState()
             val page by viewModel.page.collectAsState()
             val navController = rememberNavController()
             ReadMeTheme {
@@ -139,7 +149,7 @@ class BookAppActivity : ComponentActivity() {
                         ) {
                             composable("home") {
                                 if(profile is Resource.Success) {
-                                    MediumTopAppBarExample(books, profile.data, ::navigateToMainScreen, ::navigateToCover, ::onNextPage, page)
+                                    MediumTopAppBarExample(books, firstLesson,secondLesson, profile.data, ::navigateToMainScreen, ::navigateToCover, ::onNextPage, page, scores)
                                 }
                             }
                             composable("favorites") {
@@ -284,11 +294,14 @@ fun ProfileScreen(kFunction4: (String, Int, Int, Int) -> Unit, profile: UserProf
 @Composable
 fun MediumTopAppBarExample(
     books: List<Book>,
+    firstLesson: List<Book>,
+    secondLesson: List<Book>,
     user: UserProfile?,
     onItemClicked: (bookTitle: String) -> Unit,
     onComprehensionCover: (String) -> Unit,
     onNextPage: () -> Unit,
     page: Int,
+    scores: List<Scores>,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -418,6 +431,52 @@ fun MediumTopAppBarExample(
                                         .padding(16.dp)
                                 ) {
                                     Text(
+                                        text = "The ABC & Phoenix Method",
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            item {
+                                if (firstLesson.isNotEmpty()) {
+                                    ListRowBooks(firstLesson, "FirstLessons", onItemClicked, scores, 3f / 4.5f)
+                                } else {
+                                    CircularProgressBar()
+                                }
+
+                            }
+
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = "Practice Comprehension",
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            item {
+                                if (secondLesson.isNotEmpty()) {
+                                    ListRowBooks(secondLesson, "SecondLessons", onItemClicked, scores)
+                                } else {
+                                    CircularProgressBar()
+                                }
+                            }
+
+                            item {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
                                         text = "Recommended Books",
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Bold
@@ -428,29 +487,55 @@ fun MediumTopAppBarExample(
 
 
                         item {
-                            val filteredBooks = if (searchText.isNotBlank()) books.filter { it.name.lowercase().contains(searchText.lowercase()) }.toMutableList() else books.toMutableList()
+                            val filteredBooks = if (searchText.isNotBlank()) (firstLesson + secondLesson + books).filter { it.name.lowercase().contains(searchText.lowercase()) }.toMutableList() else books.toMutableList()
+
                             if ((filteredBooks.size % 2) != 0) {
                                 filteredBooks.add(Book("++", emptyList()))
                             }
                             if (filteredBooks.isNotEmpty()) {
-                                ListBooks(filteredBooks, onItemClicked)
+                                ListGridBooks(filteredBooks, onItemClicked, scores, 3f / 4.5f)
                             } else {
                                 CircularProgressBar()
                             }
                         }
 
                         item {
-                            if (books.size != 16 && books.isNotEmpty()) {
-                                Timber.d("CircularProgressBarPaging")
+                            if ((books.size != 16 && books.isNotEmpty()) && searchText.isBlank()) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                CircularProgressBarPaging()
+
+                                var rememberBookSize by remember { mutableIntStateOf(0) }
+
+                                if (books.size != rememberBookSize) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Text(
+                                            text = "View More",
+                                            modifier = Modifier
+                                                .padding(horizontal = 16.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    rememberBookSize = books.size
+                                                    onNextPage.invoke()
+                                                }
+                                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                                            color = Color(0xFF49AFDC),
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                        )
+                                    }
+                                } else {
+                                    CircularProgressBarPaging()
+                                }
+
                                 Spacer(modifier = Modifier.height(100.dp))
-                                onNextPage.invoke()
                             } else {
                                 Spacer(modifier = Modifier.height(100.dp))
                             }
 
                         }
+
                     }
                 }
             }
@@ -471,7 +556,9 @@ fun AMod(onTakeTestClick: (String) -> Unit, onShareResultClick: () -> Unit) {
                 )
             )
     ) {
-        Column (Modifier.fillMaxWidth().padding(16.dp)) {
+        Column (Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -652,31 +739,80 @@ fun SearchBar(searchText: String, onSearch: (String) -> Unit) {
     }
 }
 
-
-
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ListBooks(books: List<Book>, onItemClicked: (bookTitle: String) -> Unit) {
+fun ListRowBooks(
+    books: List<Book>,
+    lessonType: String = "",
+    onItemClicked: (bookTitle: String) -> Unit,
+    scores: List<Scores>,
+    ratio: Float = 3f / 5f
+) {
     val view = LocalView.current
-    FlowRow(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Absolute.Center, // Align items to the start of the row
-        verticalArrangement = Arrangement.spacedBy(16.dp), // Space between rows
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        books.forEach { coverResId ->
+        items(books) { book ->
+            val score = scores.find { it.title == book.name }?.score
+
             Box(
                 modifier = Modifier
-                    .padding(8.dp) // Inner padding for spacing
-                    .fillMaxWidth(0.45f) // Each item takes up 45% of the parent's width
+                    .width(160.dp)
                     .clip(RoundedCornerShape(8.dp))
+                    .aspectRatio(ratio)
                     .clickable {
                         view.playSoundEffect(SoundEffectConstants.CLICK)
-                        onItemClicked(coverResId.name)
+                        onItemClicked(
+                            if (lessonType.isNotEmpty()) {
+                                book.name + ":$lessonType"
+                            } else book.name
+                        )
                     }
             ) {
-                LessonUtil.getCover(coverResId.name)?.let {
-                    CompressedAsyncImage(it)
+                // Book image
+                LessonUtil.getCover(book.name)?.let {
+                    CompressedAsyncImageWithStars(it)
+                }
+
+                // Shadow + Stars Overlay at Bottom
+                if (score != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.7f), // bottom (darker)
+                                        Color.Black.copy(alpha = 0.4f),
+                                        Color.Transparent               // top (faded)
+                                    ),
+                                    startY = Float.POSITIVE_INFINITY,
+                                    endY = 0f
+                                ),
+                                shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+                            )
+                            .padding(vertical = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            repeat(3) { index ->
+                                val starColor = if (index < score) Color(0xFFFFC107) else Color.LightGray
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Star",
+                                    tint = starColor,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .padding(horizontal = 2.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -710,7 +846,7 @@ fun FavoritesBooksItems(books: List<String>, onItemClicked: (bookTitle: String) 
                     }
             ) {
                 LessonUtil.getCover(title)?.let {
-                    CompressedAsyncImage(imageResId = it)
+                    CompressedAsyncImageWithStars(imageResId = it)
                 }
             }
         }
@@ -881,7 +1017,7 @@ fun compressImage(inputStream: InputStream, quality: Int): Bitmap? {
 }
 
 @Composable
-fun CompressedAsyncImage(
+fun CompressedAsyncImageWithStars(
     imageResId: Int,
     quality: Int = 20, // Set quality to 20%
     modifier: Modifier = Modifier.fillMaxSize()
@@ -889,23 +1025,29 @@ fun CompressedAsyncImage(
     val context = LocalContext.current
     val inputStream = context.resources.openRawResource(imageResId)
 
-    // Compress the image to the desired quality
+    // Compress the image
     val compressedBitmap = compressImage(inputStream, quality)
 
-    compressedBitmap?.let {
-        // Convert the compressed Bitmap to a painter that can be used by AsyncImage
-        val imageRequest = ImageRequest.Builder(context)
-            .data(it)
-            .build()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        compressedBitmap?.let {
+            // Convert Bitmap to ImageRequest
+            val imageRequest = ImageRequest.Builder(context)
+                .data(it)
+                .build()
 
-        AsyncImage(
-            model = imageRequest,
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = modifier
-        )
+            AsyncImage(
+                model = imageRequest,
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
+
 
 @Composable
 fun CircularProgressBar() {
@@ -935,5 +1077,87 @@ fun CircularProgressBarPaging() {
         )
 
         Spacer(Modifier.height(16.dp))
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ListGridBooks(
+    books: List<Book>,
+    onItemClicked: (bookTitle: String) -> Unit,
+    scores: List<Scores>,
+    ratio: Float = 3f / 5f
+) {
+    val view = LocalView.current
+
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Absolute.Center, // Align items to the start of the row
+        verticalArrangement = Arrangement.spacedBy(8.dp), // Space between rows
+    ) {
+        books.forEach { book ->
+            val score = scores.find { it.title == book.name }?.score
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(0.45f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .aspectRatio(ratio)
+                    .clickable {
+                        view.playSoundEffect(SoundEffectConstants.CLICK)
+                        val lessonType = LessonUtil.getLessonType(book.name)
+                        onItemClicked(
+                            if (lessonType.isNotEmpty()) {
+                                book.name + ":$lessonType"
+                            } else book.name
+                        )
+                    }
+            ) {
+                // Book image
+                LessonUtil.getCover(book.name)?.let {
+                    CompressedAsyncImageWithStars(it)
+                }
+
+                // Shadow + Stars Overlay at Bottom
+                if (score != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.7f), // bottom (darker)
+                                        Color.Black.copy(alpha = 0.4f),
+                                        Color.Transparent               // top (faded)
+                                    ),
+                                    startY = Float.POSITIVE_INFINITY,
+                                    endY = 0f
+                                ),
+                                shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+                            )
+                            .padding(vertical = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            repeat(3) { index ->
+                                val starColor = if (index < score) Color(0xFFFFC107) else Color.LightGray
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Star",
+                                    tint = starColor,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .padding(horizontal = 2.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
