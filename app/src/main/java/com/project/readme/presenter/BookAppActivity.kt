@@ -431,7 +431,7 @@ fun MediumTopAppBarExample(
                                         .padding(16.dp)
                                 ) {
                                     Text(
-                                        text = "The ABC & Phoenix Method",
+                                        text = "Reading Foundations",
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -454,7 +454,7 @@ fun MediumTopAppBarExample(
                                         .padding(16.dp)
                                 ) {
                                     Text(
-                                        text = "Practice Comprehension",
+                                        text = "Comprehension Practice",
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Bold
                                     )

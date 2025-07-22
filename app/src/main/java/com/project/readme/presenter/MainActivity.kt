@@ -19,6 +19,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -69,11 +71,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -452,17 +456,26 @@ fun BookPager(
                         .padding(end = 4.dp)
                         .clickable {
                             view.playSoundEffect(SoundEffectConstants.CLICK)
-                            if (selectedPage.text.contains("-")) {
-                                val splitWords = selectedPage.text.split("-")
-                                scope.launch {
-                                    splitWords.forEach { text ->
-                                        delay(1000)
-                                        eventHandler.speak(text)
-                                    }
-                                }
 
+                            if (selectedPage.name.lowercase().contains("phonics")) {
+                                val resId = LessonUtil.getRawResIdByName(selectedPage.name)
+                                resId?.let {
+                                    val mediaPlayer = MediaPlayer.create(context, it)
+                                    mediaPlayer?.start()
+                                }
                             } else {
-                                eventHandler.speak(selectedPage.text)
+                                if (selectedPage.text.contains("-")) {
+                                    val splitWords = selectedPage.text.split("-")
+                                    scope.launch {
+                                        splitWords.forEach { text ->
+                                            delay(1000)
+                                            eventHandler.speak(text)
+                                        }
+                                    }
+
+                                } else {
+                                    eventHandler.speak(selectedPage.text)
+                                }
                             }
                         }
                 ) {
@@ -474,16 +487,24 @@ fun BookPager(
                             icon = painterResource(id = R.drawable.megaphone),
                             onClick = {
                                 view.playSoundEffect(SoundEffectConstants.CLICK)
-                                if (selectedPage.text.contains("-")) {
-                                    val splitWords = selectedPage.text.split("-")
-                                    scope.launch {
-                                        splitWords.forEach { text ->
-                                            eventHandler.speak(text)
-                                            delay(1000)
-                                        }
+                                if (selectedPage.name.lowercase().contains("phonics")) {
+                                    val resId = LessonUtil.getRawResIdByName(selectedPage.name)
+                                    resId?.let {
+                                        val mediaPlayer = MediaPlayer.create(context, it)
+                                        mediaPlayer?.start()
                                     }
                                 } else {
-                                    eventHandler.speak(selectedPage.text)
+                                    if (selectedPage.text.contains("-")) {
+                                        val splitWords = selectedPage.text.split("-")
+                                        scope.launch {
+                                            splitWords.forEach { text ->
+                                                eventHandler.speak(text)
+                                                delay(1000)
+                                            }
+                                        }
+                                    } else {
+                                        eventHandler.speak(selectedPage.text)
+                                    }
                                 }
                             },
                             modifier = Modifier.size(24.dp)
@@ -512,70 +533,49 @@ fun BookPager(
                 }
 
                 val context = LocalContext.current
-                Card(
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7C700)), // Microphone background color
-                    modifier = Modifier
-                        .padding(start = 4.dp)
-                        .clickable {
-                            view.playSoundEffect(SoundEffectConstants.CLICK)
-                            if (LessonUtil.isAllowedToSpeak(title)) {
-                                recordIntent.launch(intent)
-                            } else {
-                                Toast.makeText(context,"Speak features is not available", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        CuteArrowButton(
-                            icon = painterResource(id = R.drawable.microphone),
-                            onClick = {
-                                view.playSoundEffect(SoundEffectConstants.CLICK)
-
-                                if (LessonUtil.isAllowedToSpeak(title)) {
-                                    recordIntent.launch(intent)
-                                } else {
-                                    Toast.makeText(context,"Speak features is not available", Toast.LENGTH_SHORT).show()
-                                }
-                            },
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Text(
-                            text = "Speak",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimary, // Ensure text contrast
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
-                    }
-                }
-
-                if (isProgressFinished.value == true) {
+                if ((quizes?.quiz?.size ?: 0) <= 0) {
                     Card(
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(android.graphics.Color.parseColor("#66cbad"))),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7C700)), // Microphone background color
                         modifier = Modifier
                             .padding(start = 4.dp)
                             .clickable {
-                                eventHandler.showQuiz(QuizStatus.Show)
+                                view.playSoundEffect(SoundEffectConstants.CLICK)
+                                if (LessonUtil.isAllowedToSpeak(title)) {
+                                    recordIntent.launch(intent)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Speak features is not available",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
+
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             CuteArrowButton(
-                                icon = painterResource(id = R.drawable.quizpoint),
+                                icon = painterResource(id = R.drawable.microphone),
                                 onClick = {
-                                    eventHandler.showQuiz(QuizStatus.Show)
+                                    view.playSoundEffect(SoundEffectConstants.CLICK)
+
+                                    if (LessonUtil.isAllowedToSpeak(title)) {
+                                        recordIntent.launch(intent)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Speak features is not available",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 },
                                 modifier = Modifier.size(24.dp)
                             )
                             Text(
-                                text = "Take Quiz",
+                                text = "Speak",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimary, // Ensure text contrast
                                 modifier = Modifier.padding(end = 16.dp)
@@ -583,10 +583,69 @@ fun BookPager(
                         }
                     }
                 }
+
+                if ((quizes?.quiz?.size ?: 0) > 0) {
+                    QuizCard(eventHandler)
+                }
             }
         }
     }
 }
+
+
+@Composable
+fun QuizCard(eventHandler: EventHandler) {
+    var isEnabled by remember { mutableStateOf(false) }
+    var countdown by remember { mutableIntStateOf(16) }
+
+    LaunchedEffect(Unit) {
+        while (countdown > 0) {
+            delay(1000L)
+            countdown--
+        }
+        isEnabled = true
+    }
+
+    val enabledColor = Color(android.graphics.Color.parseColor("#66cbad"))
+    val disabledColor = Color(android.graphics.Color.parseColor("#66cbad")).copy(alpha = 0.6f)
+
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isEnabled) enabledColor else disabledColor
+        ),
+        modifier = Modifier
+            .padding(start = 4.dp)
+            .then(
+                if (isEnabled) Modifier.clickable {
+                    eventHandler.showQuiz(QuizStatus.Show)
+                } else Modifier
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier
+        ) {
+            // Use AnimatedVisibility to maintain layout space
+                CuteArrowButton(
+                    icon = painterResource(id = R.drawable.quizpoint),
+                    onClick = {
+                        eventHandler.showQuiz(QuizStatus.Show)
+                    },
+                    modifier = Modifier.size(24.dp)
+                )
+
+            Text(
+                text = if (isEnabled) "Take Quiz" else "Quiz starts in ${if(countdown > 15) 15 else countdown} seconds",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(end = 16.dp)
+            )
+        }
+    }
+}
+
 
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -597,21 +656,25 @@ fun BookViewer(
     isProgressFinished: MutableState<Boolean>,
     eventHandler: EventHandler
 ) {
-    Timber.d("SoundPage -> ${page.text}")
-
-    val progress = remember { Animatable(0f) }
+    val durationMillis = 16_000L
+    val progress = remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(Unit) {
-        progress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 10_000) // 15 seconds
-        )
-        if(quizes != null) {
+        val startTime = withFrameNanos { it }
+        var elapsed: Long
+
+        do {
+            val currentTime = withFrameNanos { it }
+            elapsed = (currentTime - startTime) / 1_000_000 // Convert to ms
+            progress.floatValue = (elapsed.toFloat() / durationMillis).coerceIn(0f, 1f)
+        } while (elapsed < durationMillis)
+
+        if (quizes != null) {
             isProgressFinished.value = true
         }
     }
 
-    val density = LocalDensity.current // ✅ get density for px-to-dp conversion
+    val density = LocalDensity.current
 
     BoxWithConstraints(
         modifier = Modifier
@@ -619,8 +682,6 @@ fun BookViewer(
             .clip(RoundedCornerShape(16.dp))
     ) {
         val maxWidthPx = constraints.maxWidth.toFloat()
-
-        // ✅ Proper conversion: px to dp
         val maxWidthDp = remember(maxWidthPx, density) {
             with(density) { maxWidthPx.toDp() }
         }
@@ -642,7 +703,8 @@ fun BookViewer(
                         height = Dimension.fillToConstraints
                     }
             )
-            if(quizes != null) {
+
+            if (quizes != null) {
                 Box(
                     modifier = Modifier
                         .constrainAs(progressRef) {
@@ -650,7 +712,7 @@ fun BookViewer(
                             bottom.linkTo(imageRef.bottom)
                         }
                         .height(6.dp)
-                        .width(maxWidthDp * progress.value) // ✅ final working width
+                        .width(maxWidthDp * progress.floatValue)
                         .background(Color.Red)
                 )
             }
@@ -756,20 +818,20 @@ fun GameExamDialog(
 
             IconButton(onClick = {
                 eventHandler?.showQuiz(QuizStatus.Hide)
-            }, modifier = Modifier.padding(16.dp).align(Alignment.TopEnd)) {
+            }, modifier = Modifier.padding(8.dp).align(Alignment.TopEnd)) {
 
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "",
                     tint = Color.DarkGray,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 48.dp, end = 24.dp),
+                    .padding(top = 30.dp, end = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -790,7 +852,7 @@ fun GameExamDialog(
 
                         Text(
                             text = currentQuiz?.question.orEmpty(),
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(),
                             textAlign = TextAlign.Center
@@ -859,7 +921,6 @@ fun GameExamDialog(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49AFDC)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    contentPadding = PaddingValues(16.dp),
                     enabled = selectedAnswer != null
                 ) {
                     Text(

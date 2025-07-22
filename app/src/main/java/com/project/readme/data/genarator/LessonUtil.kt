@@ -3,6 +3,7 @@ package com.project.readme.data.genarator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.project.readme.R
 import com.project.readme.data.Book
 import com.project.readme.data.BookCovers.*
 import com.project.readme.data.Quizzes.*
@@ -319,6 +320,16 @@ object LessonUtil {
             BitmapFactory.decodeStream(inputStream)
         } catch (e: Exception) {
             null // Return null if the image can't be loaded
+        }
+    }
+
+    fun getRawResIdByName(fileName: String): Int? {
+        return try {
+            val resId = R.raw::class.java.getDeclaredField(fileName).getInt(null)
+            resId
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
