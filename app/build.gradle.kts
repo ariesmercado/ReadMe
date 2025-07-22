@@ -140,5 +140,6 @@ dependencies {
 
     implementation (libs.androidx.fragment.ktx)
     implementation ("androidx.navigation:navigation-compose:2.7.3") // For navigation
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
 }

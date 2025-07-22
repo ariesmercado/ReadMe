@@ -23,5 +23,15 @@ enum class BookCovers(val id: Int, val title: String, @DrawableRes val cover: In
     THE_DOG_AND_THE_SPARROW(id = 17, title = "THE DOG AND THE SPARROW", cover = R.drawable.thedogandthesparrow),
     THE_CLEAN_PARK(id = 18, title = "THE CLEAN PARK", cover = R.drawable.the_clean_park),
     A_MERCHANDISE(id = 19, title = "A MERCHANDISE", cover = R.drawable.amerchandize),
-    A_KING_SHEPHERD(id = 20, title = "A KING SHEPHERD", cover = R.drawable.akingshepherd)
+    A_KING_SHEPHERD(id = 20, title = "A KING SHEPHERD", cover = R.drawable.akingshepherd),
+    PHONICS(id = 21, title = "Phonics", cover = R.drawable.phonics),
+    SIGHTWORDS(id = 22, title = "SIGHTWORDS", cover = R.drawable.sightwords1),
+    LIZA(id = 23, title = "LIZA", cover = R.drawable.liza),
+    MAX_THE_DOG(id = 24, title = "Max the Dog", cover = R.drawable.maxthedog),
+    MINAS_HAT(id = 25, title = "MINAS HAT", cover = R.drawable.minashat),
+    MY_CAMPING_TRIP(id = 26, title = "My Camping Trip", cover = R.drawable.mycampingtrip),
+    MY_PET_DOG(id = 27, title = "My pet dog", cover = R.drawable.mypetdog),
+    TED_AND_FRED(id = 28, title = "Ted and Fred", cover = R.drawable.tedandfred),
+    THE_COW(id = 23, title = "The Cow", cover = R.drawable.thecow),
+    THE_LITTLE_BIRD(id = 23, title = "The Little Bird", cover = R.drawable.thelittlebird)
 }
