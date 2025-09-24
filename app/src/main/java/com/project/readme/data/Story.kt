@@ -546,7 +546,151 @@ enum class Quiz(
         question = "There are _____ under the tree.",
         choices = listOf("gifts", "toys", "cookies"),
         1
-    )
+    ),
 
+    //For Liza
+    QUIZ70(
+        id = 70,
+        question = "1. Where was Liza?",
+        choices = listOf("at home", "at recess", "at friends home", "at park"),
+        1
+    ),
+
+    QUIZ71(
+    id = 71,
+    question = "2. How long was Liza on the swing?",
+    choices = listOf("hour", "minutes", "seconds", "day"),
+    1
+    ),
+    //For Max the Dog
+    QUIZ72(
+        id = 72,
+        question = "1. What kind of pet is Max?",
+        choices = listOf("Dog", "Fish", "Cat", "Goat"),
+        0
+    ),
+
+    QUIZ73(
+        id = 73,
+        question = "2. What color is Max?",
+        choices = listOf("Gray", "Brown", "White", "Yellow"),
+        1
+    ),
+    QUIZ74(
+        id = 74,
+        question = "3. What does Max like to do?",
+        choices = listOf("Sleep", "Dance", "Run and Jump", "Sing"),
+        2
+    ),
+
+    // Minas Hat
+    QUIZ75(
+        id = 75,
+        question = "1. Who has a hat?",
+        choices = listOf("Ana", "Mina"),
+        1
+    ),
+
+    QUIZ76(
+        id = 76,
+        question = "2. What did Pat give Mina?",
+        choices = listOf("Hat", "Cat",),
+        0
+    ),
+
+    //My Camping Trip
+    QUIZ77(
+        id = 77,
+        question = "1. Where am I going?",
+        choices = listOf("School", "Farm", "Camping", "Park"),
+        2
+    ),
+
+    QUIZ78(
+        id = 78,
+        question = "2. Where will we sleep?",
+        choices = listOf("House", "Tent", "Lake", "Church"),
+        1
+    ),
+    QUIZ79(
+        id = 79,
+        question = "3. What will we do?",
+        choices = listOf("Swim", "Sleep","Jogging","Dance"),
+        0
+    ),
+
+    // My Pet Dog
+    QUIZ80(
+        id = 80,
+        question = "1. What is my pet?",
+        choices = listOf("Cat", "Goat", "Bird", "Dog"),
+        3
+    ),
+
+    QUIZ81(
+        id = 81,
+        question = "2. What do we love to do?",
+        choices = listOf("to swim", "to play"),
+        1
+    ),
+
+    // Ted and Fred
+    QUIZ82(
+        id = 82,
+        question = "1.What kind of anim al is Ted and Fred?",
+        choices = listOf("Ant", "Dog"),
+        0
+    ),
+
+    QUIZ83(
+        id = 83,
+        question = "2. Where do they live?",
+        choices = listOf("Tree", "Sand"),
+        1
+    ),
+
+    // The Cow
+    QUIZ84(
+        id = 84,
+        question = "1. Where did I go?",
+        choices = listOf("Church", "Plaza", "Farm", "Park"),
+        2
+    ),
+
+    QUIZ85(
+        id = 85,
+        question = "2. What did I see?",
+        choices = listOf("Cow", "Horse", "Chicken", "Pig"),
+        0
+    ),
+
+    QUIZ86(
+        id = 86,
+        question = "3. What is the color of the cow?",
+        choices = listOf("Brown", "Black", "White and Black", "Gray"),
+        2
+    ),
+
+    //The Little Bird
+    QUIZ87(
+        id = 87,
+        question = "1. Where is the bird?",
+        choices = listOf("Park", "Tree", "Grass", "River"),
+        1
+    ),
+
+    QUIZ88(
+        id = 88,
+        question = "2. What did I see?",
+        choices = listOf("Cow", "Horse", "Chicken", "Pig"),
+        1
+    ),
+
+    QUIZ89(
+        id = 89,
+        question = "3. What is the color of the cow?",
+        choices = listOf("Brown", "Black", "White and Black", "Gray"),
+        2
+    ),
 }
 

@@ -8,9 +8,12 @@ import com.project.readme.common.Resource
 import com.project.readme.data.Book
 import com.project.readme.data.BookRepository
 import com.project.readme.data.UserProfile
+import com.project.readme.data.entity.Scores
 import com.project.readme.data.genarator.LessonUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,10 +31,19 @@ class BookAppViewModel @Inject constructor(
     private val _lessons = MutableStateFlow<List<Book>>(emptyList())
     val lesson = _lessons.asStateFlow()
 
+    private val _firstLessons = MutableStateFlow<List<Book>>(emptyList())
+    val firstLessons = _firstLessons.asStateFlow()
+
+    private val _secondLessons = MutableStateFlow<List<Book>>(emptyList())
+    val secondLessons = _secondLessons.asStateFlow()
+
     private val _profile = MutableStateFlow<Resource<UserProfile?>>(Resource.Success(savedStateHandle["USER"]))
     val profile = _profile.asStateFlow()
 
     val favorites: StateFlow<List<String>> = bookRepository.getFavoriteTitles()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val scores: StateFlow<List<Scores>> = bookRepository.getScores()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val listCopy = MutableStateFlow<List<Book>>(emptyList())
@@ -50,16 +62,29 @@ class BookAppViewModel @Inject constructor(
 
     fun loadLessons(context: Context) {
         viewModelScope.launch {
-            val newList = LessonUtil.loadLessonsFromAssets(context, 1).toMutableList()
-            _lessons.value = newList
-            listCopy.value = _lessons.value
-            Timber.d ("newList: ${listCopy.value}")
+            coroutineScope {
+                val firstLessonsDeferred = async {
+                    LessonUtil.loadFirstLessonsFromAssets(context).toMutableList()
+                }
+                val secondLessonsDeferred = async {
+                    LessonUtil.loadSecondLessonsFromAssets(context).toMutableList()
+                }
+                val lessonsDeferred = async {
+                    LessonUtil.loadLessonsFromAssets(context, 1).toMutableList()
+                }
+
+                _firstLessons.value = firstLessonsDeferred.await()
+                _secondLessons.value = secondLessonsDeferred.await()
+                val newList = lessonsDeferred.await()
+                _lessons.value = newList
+                listCopy.value = newList
+            }
         }
     }
 
+
     fun loadNextLessons(context: Context) {
         val cp = page.value
-        Timber.d("loadNextLessons -> $cp")
         if (cp > 2) return
         viewModelScope.launch {
             _page.value = cp + 1
@@ -72,7 +97,6 @@ class BookAppViewModel @Inject constructor(
             transList.addAll(newList)
             _lessons.value = transList
             listCopy.value = _lessons.value
-            Timber.d ("newList: ${listCopy.value}")
         }
     }
 

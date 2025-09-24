@@ -14,5 +14,6 @@ class ReadMeApplication: Application() {
 
     private fun initLogger() {
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+        
     }
 }
